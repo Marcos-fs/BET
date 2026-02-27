@@ -198,7 +198,7 @@
             const u = await DataManager.getCurrentUser();
             document.querySelectorAll('.balance-display').forEach(el => el.textContent = Utils.fmt(u.balance));
             allBets = await DataManager.getUserBets(u.id);
-            allBets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            allBets.sort((a, b) => new Date(b.created_at || b.createdAt) - new Date(a.created_at || a.createdAt));
             const stats = await DataManager.getUserStats(u.id);
 
             document.getElementById('hist-stats').innerHTML = `
@@ -226,7 +226,7 @@
                 if (type && b.type !== type) return false;
                 if (period) {
                     const days = parseInt(period);
-                    const diffMs = now - new Date(b.createdAt);
+                    const diffMs = now - new Date(b.created_at || b.createdAt);
                     if (diffMs > days * 86400000) return false;
                 }
                 return true;
@@ -270,7 +270,7 @@
           ${b.status === 'won' ? '+' + Utils.fmt(b.amount * b.odds) : b.status === 'lost' ? '-' + Utils.fmt(b.amount) : Utils.fmt(b.amount * b.odds)}
         </td>
         <td>${Utils.statusBadge(b.status)}</td>
-        <td style="color:var(--text-muted);font-size:13px;">${Utils.fmtDateShort(b.createdAt)}</td>
+        <td style="color:var(--text-muted);font-size:13px;">${Utils.fmtDateShort(b.created_at || b.createdAt)}</td>
       </tr>`;
             }).join('');
         }

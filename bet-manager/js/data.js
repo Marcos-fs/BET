@@ -157,7 +157,8 @@ const DataManager = {
                 type: 'refund',
                 description: `Reembolso: ${data.title}`,
                 amount: parseFloat(data.amount),
-                bet_id: betId
+                bet_id: betId,
+                created_at: new Date().toISOString()
             });
         }
         return data;
@@ -173,7 +174,7 @@ const DataManager = {
             .from('transactions')
             .select('*')
             .eq('user_id', userId)
-            .order('date', { ascending: false });
+            .order('created_at', { ascending: false });
         return data || [];
     },
 

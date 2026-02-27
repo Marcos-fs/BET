@@ -27,7 +27,10 @@
                 <a href="dashboard" class="nav-item active"><span class="nav-item-icon">🏠</span> Dashboard</a>
                 <a href="nova-aposta" class="nav-item"><span class="nav-item-icon">⭐</span> Aposta Única</a>
                 <a href="nova-multipla" class="nav-item"><span class="nav-item-icon">📋</span> Aposta Múltipla</a>
-                <a href="apostas" class="nav-item"><span class="nav-item-icon">🎯</span> Minhas Apostas</a>
+                <a href="apostas" class="nav-item">
+                    <span class="nav-item-icon">🎯</span> Minhas Apostas
+                    <span id="pending-count-badge" class="nav-badge" style="display:none;">0</span>
+                </a>
                 <div class="nav-section-label">Histórico & Finanças</div>
                 <a href="historico" class="nav-item"><span class="nav-item-icon">📜</span> Histórico</a>
                 <a href="carteira" class="nav-item"><span class="nav-item-icon">💰</span> Carteira</a>
@@ -59,7 +62,7 @@
                 </button>
                 <div class="topbar-title">
                     <h1>Dashboard</h1>
-                    <p>Bem-vindo ao seu painel de controle</p>
+                    <p id="user-greeting">Bem-vindo ao seu painel de controle</p>
                 </div>
                 <div class="topbar-spacer"></div>
                 <div class="topbar-balance">
@@ -207,15 +210,21 @@
     <script src="js/data.js"></script>
     <script>
         async function init() {
-            const user = await Auth.requireAuth();
-            if (!user) return;
+            try {
+                const user = await Auth.requireAuth();
+                if (!user) return;
 
-            document.getElementById('topbar-name').textContent = user.name.split(' ')[0];
-            document.getElementById('sidebar-name').textContent = user.name;
-            document.getElementById('sidebar-avatar').textContent = user.name.charAt(0).toUpperCase();
+                const greetingEl = document.getElementById('user-greeting');
+                if (greetingEl) greetingEl.textContent = `Olá, ${user.name.split(' ')[0]}! Bem-vindo ao seu painel.`;
 
-            // Load initial data
-            await loadDashboard(user);
+                document.getElementById('sidebar-name').textContent = user.name;
+                document.getElementById('sidebar-avatar').textContent = user.name.charAt(0).toUpperCase();
+
+                // Load initial data
+                await loadDashboard(user);
+            } catch (e) {
+                console.error("Dashboard init error:", e);
+            }
         }
 
         function toggleSidebar() {
@@ -259,7 +268,11 @@
             roiSub.textContent = roi >= 0 ? '▲ Lucrativo' : '▼ Prejuízo';
 
             // Pending count badge
-            document.getElementById('pending-count-badge').textContent = stats.pending;
+            const badge = document.getElementById('pending-count-badge');
+            if (badge) {
+                badge.textContent = stats.pending;
+                badge.style.display = stats.pending > 0 ? 'flex' : 'none';
+            }
 
             // Chart
             buildChart(bets);
@@ -268,7 +281,7 @@
             buildCategories(bets);
 
             // Recent bets
-            const recent = [...bets].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+            const recent = [...bets].sort((a, b) => new Date(b.created_at || b.createdAt) - new Date(a.created_at || a.createdAt)).slice(0, 5);
             const recentEl = document.getElementById('recent-bets');
             if (recent.length === 0) {
                 recentEl.innerHTML = `<div class="empty-state" style="padding:30px 0;"><div class="empty-state-icon" style="font-size:36px;">🎯</div><p>Nenhuma aposta ainda</p><a href="nova-aposta.html" class="btn btn-primary btn-sm" style="margin-top:12px;">Fazer primeira aposta</a></div>`;
@@ -278,7 +291,7 @@
           <div class="transaction-icon" style="background:rgba(108,99,255,0.1);">${Utils.categoryIcon(b.category)}</div>
           <div class="transaction-info">
             <div class="transaction-title">${b.title}</div>
-            <div class="transaction-date">${Utils.fmtDate(b.createdAt)}</div>
+            <div class="transaction-date">${Utils.fmtDate(b.created_at || b.createdAt)}</div>
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
             ${Utils.statusBadge(b.status)}
@@ -298,7 +311,7 @@
           <div class="transaction-icon" style="background:rgba(255,165,2,0.12);">${Utils.categoryIcon(b.category)}</div>
           <div class="transaction-info">
             <div class="transaction-title">${b.title}</div>
-            <div class="transaction-date">📅 ${Utils.fmtDateShort(b.createdAt)} · Odd ${b.odds}x</div>
+            <div class="transaction-date">📅 ${Utils.fmtDateShort(b.created_at || b.createdAt)} · Odd ${b.odds}x</div>
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
             <span class="badge badge-warning"><span class="badge-dot"></span>Pendente</span>
@@ -322,7 +335,9 @@
             }
 
             bets.forEach(b => {
-                const bDate = b.createdAt.split('T')[0];
+                const timestamp = b.created_at || b.createdAt;
+                if (!timestamp) return;
+                const bDate = timestamp.split('T')[0];
                 const day = days.find(d => d.iso === bDate);
                 if (day) {
                     if (b.status === 'won') day.won++;

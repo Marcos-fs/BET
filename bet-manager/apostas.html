@@ -217,8 +217,8 @@
                 return true;
             });
 
-            if (sort === 'newest') filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            else if (sort === 'oldest') filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            if (sort === 'newest') filtered.sort((a, b) => new Date(b.created_at || b.createdAt) - new Date(a.created_at || a.createdAt));
+            else if (sort === 'oldest') filtered.sort((a, b) => new Date(a.created_at || a.createdAt) - new Date(b.created_at || b.createdAt));
             else if (sort === 'amount-high') filtered.sort((a, b) => b.amount - a.amount);
             else if (sort === 'amount-low') filtered.sort((a, b) => a.amount - b.amount);
             else if (sort === 'odds-high') filtered.sort((a, b) => b.odds - a.odds);
@@ -248,7 +248,7 @@
                       </div>`
                     : `<div class="bet-card-meta">
                         <span class="bet-meta-item">🏁 ${b.selection}</span>
-                        <span class="bet-meta-item">📅 ${Utils.fmtDateShort(b.createdAt)}</span>
+                        <span class="bet-meta-item">📅 ${Utils.fmtDateShort(b.created_at || b.createdAt)}</span>
                       </div>
                       ${b.event ? `<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">🏆 ${b.event}</div>` : ''}`;
                 return `

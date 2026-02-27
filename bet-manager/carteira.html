@@ -258,7 +258,7 @@
           <div class="transaction-icon" style="background:rgba(${isPositive ? '46,213,115' : '255,71,87'},0.1);">${icon}</div>
           <div class="transaction-info">
             <div class="transaction-title">${t.description}</div>
-            <div class="transaction-date">${Utils.fmtDate(t.date || t.createdAt)} · <span style="color:var(--text-muted);font-size:11px;text-transform:uppercase;">${typeLabels[t.type] || t.type}</span></div>
+            <div class="transaction-date">${Utils.fmtDate(t.created_at || t.date || t.createdAt)} · <span style="color:var(--text-muted);font-size:11px;text-transform:uppercase;">${typeLabels[t.type] || t.type}</span></div>
           </div>
           <div class="transaction-amount ${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}${Utils.fmt(amt)}</div>
         </div>`;
