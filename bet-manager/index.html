@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#6c63ff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="BetManager" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>BetManager – Login</title>
+  <meta name="description" content="Gerencie suas apostas com inteligência. Faça login ou cadastre-se no BetManager." />
+  <link rel="stylesheet" href="styles/main.css" />
+  <style>
+    .auth-features {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-default);
+    }
+
+    .auth-feature {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .auth-feature-icon {
+      font-size: 18px;
+    }
+
+    .password-strength {
+      height: 4px;
+      border-radius: 2px;
+      margin-top: 6px;
+      transition: all 0.3s;
+      background: var(--bg-input);
+      overflow: hidden;
+    }
+
+    .password-strength-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    .strength-text {
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-muted);
+      font-size: 12px;
+      margin: 20px 0;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-default);
+    }
+
+    .form-panel {
+      display: none;
+    }
+
+    .form-panel.active {
+      display: block;
+    }
+  </style>
+</head>
+
+<body class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">🎯</div>
+      <span class="auth-logo-text">BetManager</span>
+    </div>
+
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tab-login" onclick="switchTab('login')">Entrar</div>
+      <div class="auth-tab" id="tab-register" onclick="switchTab('register')">Criar Conta</div>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="form-panel active" id="panel-login">
+      <div class="form-group">
+        <label class="form-label">E-mail</label>
+        <div class="input-group">
+          <span class="input-icon">📧</span>
+          <input type="email" class="form-control" id="login-email" placeholder="seu@email.com" autocomplete="email" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Senha</label>
+        <div class="input-group">
+          <span class="input-icon">🔒</span>
+          <input type="password" class="form-control" id="login-password" placeholder="••••••••"
+            autocomplete="current-password" />
+          <button class="toggle-password" onclick="togglePwd('login-password', this)">👁️</button>
+        </div>
+      </div>
+      <div id="login-error" style="color:var(--danger);font-size:13px;margin-bottom:10px;display:none;"></div>
+      <button class="btn btn-primary btn-full btn-lg" onclick="handleLogin()" id="login-btn">
+        <span>Entrar</span> →
+      </button>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="form-panel" id="panel-register">
+      <div class="form-group">
+        <label class="form-label">Nome Completo</label>
+        <div class="input-group">
+          <span class="input-icon">👤</span>
+          <input type="text" class="form-control" id="reg-name" placeholder="João Silva" autocomplete="name" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">E-mail</label>
+        <div class="input-group">
+          <span class="input-icon">📧</span>
+          <input type="email" class="form-control" id="reg-email" placeholder="seu@email.com" autocomplete="email" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Senha</label>
+        <div class="input-group">
+          <span class="input-icon">🔒</span>
+          <input type="password" class="form-control" id="reg-password" placeholder="Mín. 6 caracteres"
+            oninput="checkStrength(this.value)" autocomplete="new-password" />
+          <button class="toggle-password" onclick="togglePwd('reg-password', this)">👁️</button>
+        </div>
+        <div class="password-strength" id="pwd-strength-bar">
+          <div class="password-strength-fill" id="pwd-strength-fill" style="width:0%"></div>
+        </div>
+        <div class="strength-text" id="pwd-strength-text" style="color:var(--text-muted)"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirmar Senha</label>
+        <div class="input-group">
+          <span class="input-icon">🔒</span>
+          <input type="password" class="form-control" id="reg-confirm" placeholder="Repita a senha"
+            autocomplete="new-password" />
+        </div>
+      </div>
+      <div id="reg-error" style="color:var(--danger);font-size:13px;margin-bottom:10px;display:none;"></div>
+      <button class="btn btn-primary btn-full btn-lg" onclick="handleRegister()" id="reg-btn">
+        Criar Conta →
+      </button>
+    </div>
+
+    <div class="auth-features">
+      <div class="auth-feature"><span class="auth-feature-icon">🎯</span> <span>Apostas únicas e personalizadas</span>
+      </div>
+      <div class="auth-feature"><span class="auth-feature-icon">📊</span> <span>Dashboard com estatísticas
+          completas</span></div>
+      <div class="auth-feature"><span class="auth-feature-icon">💰</span> <span>Gestão de carteira integrada</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script>
+    // Check if already logged in
+    if (DataManager.getCurrentUser()) {
+      window.location.href = 'dashboard.html';
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      document.getElementById('panel-' + tab).classList.add('active');
+    }
+
+    function togglePwd(id, btn) {
+      const inp = document.getElementById(id);
+      if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+      else { inp.type = 'password'; btn.textContent = '👁️'; }
+    }
+
+    function checkStrength(val) {
+      const bar = document.getElementById('pwd-strength-fill');
+      const txt = document.getElementById('pwd-strength-text');
+      let score = 0;
+      if (val.length >= 6) score++;
+      if (val.length >= 10) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[^a-zA-Z0-9]/.test(val)) score++;
+      if (/[A-Z]/.test(val)) score++;
+      const pct = (score / 5) * 100;
+      const colors = ['', '#ff4757', '#ffa502', '#ffdd59', '#2ed573', '#00d4aa'];
+      const labels = ['', 'Muito fraca', 'Fraca', 'Razoável', 'Forte', 'Muito forte'];
+      bar.style.width = pct + '%';
+      bar.style.background = colors[score] || '';
+      txt.textContent = val ? labels[score] : '';
+      txt.style.color = colors[score] || '';
+    }
+
+    function setLoading(btnId, loading, text) {
+      const btn = document.getElementById(btnId);
+      btn.disabled = loading;
+      btn.innerHTML = loading ? '<span class="spinner">⏳</span> Aguarde...' : text;
+    }
+
+    function handleLogin() {
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const errEl = document.getElementById('login-error');
+      errEl.style.display = 'none';
+      if (!email || !password) { errEl.textContent = 'Preencha todos os campos.'; errEl.style.display = 'block'; return; }
+      setLoading('login-btn', true, '<span>Entrar</span> →');
+      setTimeout(() => {
+        const result = Auth.login(email, password);
+        if (result.error) {
+          errEl.textContent = result.error; errEl.style.display = 'block';
+          setLoading('login-btn', false, '<span>Entrar</span> →');
+        } else {
+          window.location.href = 'dashboard.html';
+        }
+      }, 600);
+    }
+
+    function loginDemo() {
+      document.getElementById('login-email').value = 'demo@betmanager.com';
+      document.getElementById('login-password').value = 'demo123';
+      handleLogin();
+    }
+
+    function handleRegister() {
+      const name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const confirm = document.getElementById('reg-confirm').value;
+      const errEl = document.getElementById('reg-error');
+      errEl.style.display = 'none';
+      if (!name || !email || !password || !confirm) { errEl.textContent = 'Preencha todos os campos.'; errEl.style.display = 'block'; return; }
+      if (password !== confirm) { errEl.textContent = 'As senhas não coincidem.'; errEl.style.display = 'block'; return; }
+      setLoading('reg-btn', true, 'Criar Conta →');
+      setTimeout(() => {
+        const result = Auth.register(name, email, password);
+        if (result.error) {
+          errEl.textContent = result.error; errEl.style.display = 'block';
+          setLoading('reg-btn', false, 'Criar Conta →');
+        } else {
+          window.location.href = 'dashboard.html';
+        }
+      }, 600);
+    }
+
+    // Enter key support
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        if (document.getElementById('panel-login').classList.contains('active')) handleLogin();
+        else handleRegister();
+      }
+    });
+  </script>
+</body>
+
+</html>

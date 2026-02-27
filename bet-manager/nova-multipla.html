@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#6c63ff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="BetManager" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <title>BetManager – Nova Aposta Múltipla</title>
+    <link rel="stylesheet" href="styles/main.css" />
+    <style>
+        .selection-card {
+            background: var(--bg-input);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-lg);
+            padding: 18px;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .selection-card:hover {
+            border-color: rgba(108, 99, 255, 0.25);
+        }
+
+        .selection-number {
+            position: absolute;
+            top: -10px;
+            left: 14px;
+            background: var(--primary);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: var(--radius-full);
+        }
+
+        .selection-remove {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 18px;
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .selection-remove:hover {
+            background: rgba(255, 71, 87, 0.12);
+            color: var(--danger);
+        }
+
+        .add-selection-btn {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: 2px dashed rgba(108, 99, 255, 0.25);
+            border-radius: var(--radius-lg);
+            color: var(--primary-light);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .add-selection-btn:hover {
+            border-color: var(--primary);
+            background: rgba(108, 99, 255, 0.06);
+        }
+
+        .accumulator-summary {
+            background: linear-gradient(135deg, rgba(108, 99, 255, 0.1), rgba(0, 212, 170, 0.07));
+            border: 1px solid rgba(108, 99, 255, 0.2);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+        }
+
+        .acc-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 14px;
+        }
+
+        .acc-row:last-child {
+            border-bottom: none;
+        }
+
+        .acc-label {
+            color: var(--text-secondary);
+        }
+
+        .acc-value {
+            font-weight: 700;
+        }
+
+        .acc-total-odds {
+            font-size: 26px;
+            color: var(--primary-light);
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 800;
+        }
+
+        .acc-total-return {
+            font-size: 24px;
+            color: var(--accent);
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 800;
+        }
+
+        .cat-select {
+            width: 100%;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            padding: 10px 36px 10px 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235A6080' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            cursor: pointer;
+        }
+
+        .cat-select option {
+            background: var(--bg-elevated);
+        }
+
+        .selections-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .odds-chain {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .odds-chip {
+            background: rgba(108, 99, 255, 0.12);
+            border: 1px solid rgba(108, 99, 255, 0.2);
+            border-radius: var(--radius-full);
+            padding: 3px 10px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary-light);
+        }
+
+        .odds-separator {
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .multipla-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, rgba(108, 99, 255, 0.15), rgba(0, 212, 170, 0.08));
+            border: 1px solid rgba(108, 99, 255, 0.25);
+            border-radius: var(--radius-full);
+            padding: 4px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">🎯</div><span class="sidebar-logo-text">BetManager</span>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Principal</div>
+                <a href="dashboard.html" class="nav-item"><span class="nav-item-icon">🏠</span> Dashboard</a>
+                <a href="nova-aposta.html" class="nav-item"><span class="nav-item-icon">⭐</span> Aposta Única</a>
+                <a href="nova-multipla.html" class="nav-item active"><span class="nav-item-icon">📋</span> Aposta
+                    Múltipla</a>
+                <a href="apostas.html" class="nav-item"><span class="nav-item-icon">🎯</span> Minhas Apostas</a>
+                <div class="nav-section-label">Histórico & Finanças</div>
+                <a href="historico.html" class="nav-item"><span class="nav-item-icon">📜</span> Histórico</a>
+                <a href="carteira.html" class="nav-item"><span class="nav-item-icon">💰</span> Carteira</a>
+                <div class="nav-section-label">Conta</div>
+                <a href="perfil.html" class="nav-item"><span class="nav-item-icon">👤</span> Perfil</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="window.location.href='perfil.html'">
+                    <div class="user-avatar" id="sidebar-avatar">?</div>
+                    <div class="user-details">
+                        <div class="user-name" id="sidebar-name">...</div>
+                        <div class="user-role">Apostador</div>
+                    </div>
+                </div>
+                <button onclick="DataManager.logout();window.location.href='index.html';"
+                    style="width:100%;margin-top:8px;padding:8px;color:var(--text-muted);background:none;border:none;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:var(--radius-md);cursor:pointer;font-size:13px;font-weight:600;transition:var(--transition);"
+                    onmouseover="this.style.background='rgba(255,71,87,0.1)';this.style.color='var(--danger)'"
+                    onmouseout="this.style.background='';this.style.color='var(--text-muted)'">
+                    <span>🚪</span> Sair
+                </button>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <div class="topbar">
+                <div class="topbar-title">
+                    <h1>Aposta Múltipla</h1>
+                    <p>Combine seleções e multiplique seus ganhos</p>
+                </div>
+                <div class="topbar-spacer"></div>
+                <div class="topbar-balance"><span class="topbar-balance-label">💰 Saldo disponível</span><span
+                        class="topbar-balance-val balance-display">R$ 0,00</span></div>
+            </div>
+
+            <div class="page-content">
+                <div style="display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start;">
+
+                    <!-- FORM -->
+                    <div class="card">
+                        <div class="card-header" style="margin-bottom:20px;">
+                            <div>
+                                <div class="card-title">📋 Criar Aposta Múltipla</div>
+                                <div class="card-subtitle">Adicione 2 ou mais seleções para criar um acumulador</div>
+                            </div>
+                            <span class="multipla-tag">📋 Acumulador</span>
+                        </div>
+
+                        <!-- Bet title -->
+                        <div class="form-group">
+                            <label class="form-label">Nome da Aposta Múltipla *</label>
+                            <input type="text" class="form-control" id="bet-title"
+                                placeholder="Ex: Combo da Rodada, Dupla Certeira..." maxlength="80" />
+                        </div>
+
+                        <!-- Selections -->
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                            <label class="form-label" style="margin:0;">Seleções * <span id="sel-count-label"
+                                    style="color:var(--primary-light);font-size:11px;">(mín. 2)</span></label>
+                            <div class="odds-chain" id="odds-chain" style="margin:0;"></div>
+                        </div>
+
+                        <div class="selections-list" id="selections-list"></div>
+
+                        <button class="add-selection-btn" onclick="addSelection()" id="add-sel-btn">
+                            ➕ Adicionar Seleção
+                        </button>
+
+                        <div style="height:1px;background:var(--border-default);margin:22px 0;"></div>
+
+                        <!-- Value & Notes -->
+                        <div class="form-row" style="margin-bottom:16px;">
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label">Valor da Aposta *</label>
+                                <div class="input-group">
+                                    <span class="input-icon" style="font-size:14px;font-weight:700;">R$</span>
+                                    <input type="number" class="form-control" id="bet-amount" placeholder="0,00" min="1"
+                                        step="0.01" oninput="updateSummary()" />
+                                </div>
+                                <div class="quick-amounts" style="margin-top:8px;">
+                                    <button class="quick-amount-btn" onclick="setAmt(10)">R$10</button>
+                                    <button class="quick-amount-btn" onclick="setAmt(25)">R$25</button>
+                                    <button class="quick-amount-btn" onclick="setAmt(50)">R$50</button>
+                                    <button class="quick-amount-btn" onclick="setAmt(100)">R$100</button>
+                                    <button class="quick-amount-btn" onclick="setAmt(-1)">Máx</button>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label">Observações</label>
+                                <textarea class="form-control" id="bet-notes" placeholder="Análise ou justificativa..."
+                                    rows="3" style="resize:none;"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Summary inside form -->
+                        <div class="accumulator-summary" id="acc-summary">
+                            <div class="acc-row">
+                                <span class="acc-label">📊 Seleções</span>
+                                <span class="acc-value" id="sum-selections">0</span>
+                            </div>
+                            <div class="acc-row">
+                                <span class="acc-label">✖️ Odd Total</span>
+                                <span class="acc-total-odds" id="sum-odds">–</span>
+                            </div>
+                            <div class="acc-row">
+                                <span class="acc-label">💵 Valor apostado</span>
+                                <span class="acc-value" id="sum-amount">–</span>
+                            </div>
+                            <div class="acc-row">
+                                <span class="acc-label">🏆 Retorno potencial</span>
+                                <span class="acc-total-return" id="sum-return">–</span>
+                            </div>
+                        </div>
+
+                        <div id="form-error"
+                            style="color:var(--danger);font-size:13px;margin-top:14px;display:none;padding:10px;background:rgba(255,71,87,0.08);border-radius:var(--radius-sm);border:1px solid rgba(255,71,87,0.2);">
+                        </div>
+
+                        <div style="display:flex;gap:12px;margin-top:18px;">
+                            <button class="btn btn-primary btn-lg" onclick="submitMultiple()" id="submit-btn"
+                                style="flex:2;">
+                                📋 Registrar Aposta Múltipla
+                            </button>
+                            <button class="btn btn-outline btn-lg" onclick="resetForm()" style="flex:1;">Limpar</button>
+                        </div>
+                    </div>
+
+                    <!-- SIDEBAR INFO -->
+                    <div style="display:flex;flex-direction:column;gap:16px;">
+                        <!-- How it works -->
+                        <div class="card">
+                            <div class="card-title" style="margin-bottom:14px;">ℹ️ Como funciona</div>
+                            <div style="display:flex;flex-direction:column;gap:10px;">
+                                <div style="display:flex;gap:10px;font-size:13px;color:var(--text-secondary);">
+                                    <span style="font-size:18px;flex-shrink:0;">1️⃣</span>
+                                    <span>Adicione pelo menos <strong>2 seleções</strong> de eventos diferentes.</span>
+                                </div>
+                                <div style="display:flex;gap:10px;font-size:13px;color:var(--text-secondary);">
+                                    <span style="font-size:18px;flex-shrink:0;">2️⃣</span>
+                                    <span>A odd total é o <strong>produto de todas as odds</strong> individuais.</span>
+                                </div>
+                                <div style="display:flex;gap:10px;font-size:13px;color:var(--text-secondary);">
+                                    <span style="font-size:18px;flex-shrink:0;">3️⃣</span>
+                                    <span>Para ganhar, <strong>todas as seleções</strong> devem ser acertadas.</span>
+                                </div>
+                                <div style="display:flex;gap:10px;font-size:13px;color:var(--text-secondary);">
+                                    <span style="font-size:18px;flex-shrink:0;">⚡</span>
+                                    <span>Mais seleções = <strong>maior risco</strong> e <strong>maior
+                                            retorno</strong>.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bankroll -->
+                        <div class="card">
+                            <div class="card-title" style="margin-bottom:10px;">📊 Bankroll</div>
+                            <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">Saldo disponível
+                            </div>
+                            <div style="font-size:22px;font-weight:800;color:var(--accent);margin-bottom:14px;"
+                                id="balance-display-side">R$ 0,00</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill accent" id="amount-bar" style="width:0%"></div>
+                            </div>
+                            <div style="font-size:12px;color:var(--text-muted);margin-top:5px;" id="amount-pct-label">0%
+                                do saldo</div>
+                        </div>
+
+                        <!-- Example -->
+                        <div class="card" style="border-color:rgba(0,212,170,0.15);">
+                            <div class="card-title" style="margin-bottom:12px;color:var(--accent);">💡 Exemplo</div>
+                            <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">
+                                Seleção 1: <strong>Odd 2.0</strong><br>
+                                Seleção 2: <strong>Odd 1.80</strong><br>
+                                Seleção 3: <strong>Odd 1.50</strong><br>
+                                <div style="height:1px;background:var(--border-default);margin:10px 0;"></div>
+                                Odd total: <strong style="color:var(--primary-light);">2.0 × 1.80 × 1.50 =
+                                    5.40</strong><br>
+                                Aposta: R$ 20,00<br>
+                                Retorno: <strong style="color:var(--accent);">R$ 108,00</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script>
+        const user = Auth.requireAuth();
+        if (!user) throw new Error();
+        document.getElementById('sidebar-name').textContent = user.name;
+        document.getElementById('sidebar-avatar').textContent = user.name.charAt(0).toUpperCase();
+
+        let currentBalance = 0;
+        let selectionCount = 0;
+
+        const CATEGORIES = ['Futebol', 'Basquete', 'Tênis', 'E-Sports', 'Fórmula 1', 'Vôlei', 'MMA', 'Ciclismo', 'Baseball', 'Outro'];
+
+        function loadBalance() {
+            const u = DataManager.getUserById(user.id);
+            currentBalance = u.balance;
+            document.querySelectorAll('.balance-display').forEach(el => el.textContent = Utils.fmt(u.balance));
+            document.getElementById('balance-display-side').textContent = Utils.fmt(u.balance);
+            updateSummary();
+        }
+
+        function addSelection() {
+            selectionCount++;
+            const idx = selectionCount;
+            const list = document.getElementById('selections-list');
+            const div = document.createElement('div');
+            div.className = 'selection-card';
+            div.id = 'sel-' + idx;
+            div.innerHTML = `
+      <div class="selection-number">Seleção ${idx}</div>
+      ${idx > 1 ? `<button class="selection-remove" onclick="removeSelection(${idx})" title="Remover">✕</button>` : ''}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;">
+        <div class="form-group" style="margin:0;">
+          <label class="form-label" style="font-size:10px;">Evento / Partida</label>
+          <input type="text" class="form-control" id="sel-title-${idx}" placeholder="Ex: Brasil x Argentina" oninput="updateSummary()" />
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label class="form-label" style="font-size:10px;">Categoria</label>
+          <select class="cat-select" id="sel-cat-${idx}" onchange="updateSummary()">
+            ${CATEGORIES.map(c => `<option value="${c}">${Utils.categoryIcon(c)} ${c}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 120px;gap:12px;margin-top:10px;">
+        <div class="form-group" style="margin:0;">
+          <label class="form-label" style="font-size:10px;">Seleção / Palpite</label>
+          <input type="text" class="form-control" id="sel-pick-${idx}" placeholder="Ex: Brasil Vence" oninput="updateSummary()" />
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label class="form-label" style="font-size:10px;">Odd</label>
+          <input type="number" class="form-control" id="sel-odds-${idx}" placeholder="1.50" min="1.01" step="0.01" oninput="updateSummary()" />
+        </div>
+      </div>`;
+            list.appendChild(div);
+            renumberSelections();
+            updateSummary();
+            updateAddBtn();
+        }
+
+        function removeSelection(idx) {
+            const el = document.getElementById('sel-' + idx);
+            if (el) el.remove();
+            renumberSelections();
+            updateSummary();
+            updateAddBtn();
+        }
+
+        function renumberSelections() {
+            const cards = document.querySelectorAll('.selection-card');
+            cards.forEach((card, i) => {
+                const label = card.querySelector('.selection-number');
+                if (label) label.textContent = `Seleção ${i + 1}`;
+            });
+            document.getElementById('sel-count-label').textContent =
+                `(${cards.length} seleç${cards.length !== 1 ? 'ões' : 'ão'}${cards.length < 2 ? ' – mín. 2' : ''})`;
+        }
+
+        function updateAddBtn() {
+            const count = document.querySelectorAll('.selection-card').length;
+            const btn = document.getElementById('add-sel-btn');
+            btn.disabled = count >= 12;
+            btn.style.opacity = count >= 12 ? '0.4' : '1';
+        }
+
+        function getSelections() {
+            const cards = document.querySelectorAll('.selection-card');
+            const sels = [];
+            cards.forEach(card => {
+                const id = card.id.replace('sel-', '');
+                const title = document.getElementById('sel-title-' + id)?.value.trim() || '';
+                const category = document.getElementById('sel-cat-' + id)?.value || 'Outro';
+                const selection = document.getElementById('sel-pick-' + id)?.value.trim() || '';
+                const odds = parseFloat(document.getElementById('sel-odds-' + id)?.value) || 0;
+                sels.push({ title, category, selection, odds });
+            });
+            return sels;
+        }
+
+        function updateSummary() {
+            const sels = getSelections();
+            const amount = parseFloat(document.getElementById('bet-amount').value) || 0;
+            const validSels = sels.filter(s => s.odds > 0);
+            const totalOdds = validSels.reduce((acc, s) => acc * s.odds, 1);
+            const potential = amount * totalOdds;
+
+            document.getElementById('sum-selections').textContent = sels.length;
+            document.getElementById('sum-odds').textContent = validSels.length > 0 ? totalOdds.toFixed(2) + 'x' : '–';
+            document.getElementById('sum-amount').textContent = amount > 0 ? Utils.fmt(amount) : '–';
+            document.getElementById('sum-return').textContent = (amount > 0 && validSels.length > 0) ? Utils.fmt(potential) : '–';
+
+            // Odds chain display
+            const chain = document.getElementById('odds-chain');
+            if (validSels.length > 0) {
+                chain.innerHTML = validSels.map((s, i) =>
+                    `${i > 0 ? '<span class="odds-separator">×</span>' : ''}<span class="odds-chip">${s.odds.toFixed(2)}</span>`
+                ).join('') + `<span class="odds-separator">=</span><span class="odds-chip" style="background:rgba(0,212,170,0.15);border-color:rgba(0,212,170,0.25);color:var(--accent);">${totalOdds.toFixed(2)}</span>`;
+            } else {
+                chain.innerHTML = '';
+            }
+
+            // Progress bar
+            const pct = currentBalance > 0 ? Math.min((amount / currentBalance) * 100, 100) : 0;
+            document.getElementById('amount-bar').style.width = pct + '%';
+            document.getElementById('amount-pct-label').textContent = pct.toFixed(1) + '% do saldo';
+            const bar = document.getElementById('amount-bar');
+            bar.className = 'progress-fill ' + (pct > 80 ? 'danger' : pct > 50 ? 'warning' : 'accent');
+        }
+
+        function setAmt(val) {
+            if (val === -1) val = Math.max(0, currentBalance).toFixed(2);
+            document.getElementById('bet-amount').value = val;
+            updateSummary();
+        }
+
+        function resetForm() {
+            document.getElementById('bet-title').value = '';
+            document.getElementById('bet-amount').value = '';
+            document.getElementById('bet-notes').value = '';
+            document.getElementById('selections-list').innerHTML = '';
+            document.getElementById('form-error').style.display = 'none';
+            selectionCount = 0;
+            addSelection();
+            addSelection();
+            updateSummary();
+        }
+
+        function submitMultiple() {
+            const title = document.getElementById('bet-title').value.trim();
+            const amount = parseFloat(document.getElementById('bet-amount').value);
+            const notes = document.getElementById('bet-notes').value.trim();
+            const sels = getSelections();
+            const errEl = document.getElementById('form-error');
+            errEl.style.display = 'none';
+
+            if (!title) { errEl.textContent = 'Por favor, insira um nome para a aposta.'; errEl.style.display = 'block'; return; }
+            if (sels.length < 2) { errEl.textContent = 'Adicione pelo menos 2 seleções.'; errEl.style.display = 'block'; return; }
+            for (let i = 0; i < sels.length; i++) {
+                const s = sels[i];
+                if (!s.title) { errEl.textContent = `Seleção ${i + 1}: preencha o evento.`; errEl.style.display = 'block'; return; }
+                if (!s.selection) { errEl.textContent = `Seleção ${i + 1}: preencha o palpite.`; errEl.style.display = 'block'; return; }
+                if (!s.odds || s.odds <= 1) { errEl.textContent = `Seleção ${i + 1}: odd deve ser maior que 1.00.`; errEl.style.display = 'block'; return; }
+            }
+            if (!amount || amount <= 0) { errEl.textContent = 'Por favor, insira um valor válido.'; errEl.style.display = 'block'; return; }
+            if (amount > currentBalance) { errEl.textContent = `Saldo insuficiente. Disponível: ${Utils.fmt(currentBalance)}.`; errEl.style.display = 'block'; return; }
+
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Registrando...';
+
+            setTimeout(() => {
+                const bet = DataManager.createMultipleBet(user.id, { title, amount, selections: sels, notes });
+                const totalOdds = bet.odds;
+                Toast.success('📋 Aposta múltipla registrada!', `${sels.length} seleções · Odd total: ${totalOdds}x · ${Utils.fmt(amount)} apostados`);
+                resetForm();
+                loadBalance();
+                btn.disabled = false;
+                btn.textContent = '📋 Registrar Aposta Múltipla';
+            }, 600);
+        }
+
+        // Initialize with 2 selections
+        addSelection();
+        addSelection();
+        loadBalance();
+    </script>
+</body>
+
+</html>

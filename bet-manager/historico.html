@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#6c63ff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="BetManager" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <title>BetManager – Histórico</title>
+    <link rel="stylesheet" href="styles/main.css" />
+</head>
+
+<body>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">🎯</div><span class="sidebar-logo-text">BetManager</span>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Principal</div>
+                <a href="dashboard.html" class="nav-item"><span class="nav-item-icon">🏠</span> Dashboard</a>
+                <a href="nova-aposta.html" class="nav-item"><span class="nav-item-icon">⭐</span> Aposta Única</a>
+                <a href="nova-multipla.html" class="nav-item"><span class="nav-item-icon">📋</span> Aposta Múltipla</a>
+                <a href="apostas.html" class="nav-item"><span class="nav-item-icon">🎯</span> Minhas Apostas</a>
+                <div class="nav-section-label">Histórico & Finanças</div>
+                <a href="historico.html" class="nav-item active"><span class="nav-item-icon">📜</span> Histórico</a>
+                <a href="carteira.html" class="nav-item"><span class="nav-item-icon">💰</span> Carteira</a>
+                <div class="nav-section-label">Conta</div>
+                <a href="perfil.html" class="nav-item"><span class="nav-item-icon">👤</span> Perfil</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="window.location.href='perfil.html'">
+                    <div class="user-avatar" id="sidebar-avatar">?</div>
+                    <div class="user-details">
+                        <div class="user-name" id="sidebar-name">...</div>
+                        <div class="user-role">Apostador</div>
+                    </div>
+                </div>
+                <button onclick="DataManager.logout();window.location.href='index.html';"
+                    style="width:100%;margin-top:8px;padding:8px;color:var(--text-muted);background:none;border:none;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:var(--radius-md);cursor:pointer;font-size:13px;font-weight:600;transition:var(--transition);"
+                    onmouseover="this.style.background='rgba(255,71,87,0.1)';this.style.color='var(--danger)'"
+                    onmouseout="this.style.background='';this.style.color='var(--text-muted)'">
+                    <span>🚪</span> Sair
+                </button>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <div class="topbar">
+                <div class="topbar-title">
+                    <h1>Histórico</h1>
+                    <p>Registro completo de todas as suas apostas</p>
+                </div>
+                <div class="topbar-spacer"></div>
+                <div class="topbar-balance"><span class="topbar-balance-label">💰 Saldo</span><span
+                        class="topbar-balance-val balance-display">R$ 0,00</span></div>
+            </div>
+
+            <div class="page-content">
+                <!-- Summary Stats -->
+                <div class="stats-grid" style="margin-bottom:24px;" id="hist-stats"></div>
+
+                <!-- Filters -->
+                <div class="filters-bar">
+                    <div class="search-input-wrap">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" placeholder="Buscar..." id="search" oninput="filterHistory()" />
+                    </div>
+                    <select class="filter-select" id="status-f" onchange="filterHistory()">
+                        <option value="">Todos</option>
+                        <option value="won">Ganhou</option>
+                        <option value="lost">Perdeu</option>
+                        <option value="pending">Pendente</option>
+                        <option value="cancelled">Cancelada</option>
+                    </select>
+                    <select class="filter-select" id="cat-f" onchange="filterHistory()">
+                        <option value="">Todas categorias</option>
+                        <option>Futebol</option>
+                        <option>Basquete</option>
+                        <option>Tênis</option>
+                        <option>E-Sports</option>
+                        <option>Fórmula 1</option>
+                        <option>Vôlei</option>
+                        <option>MMA</option>
+                        <option>Ciclismo</option>
+                        <option>Baseball</option>
+                        <option>Outro</option>
+                    </select>
+                    <select class="filter-select" id="period-f" onchange="filterHistory()">
+                        <option value="">Todos os períodos</option>
+                        <option value="7">Últimos 7 dias</option>
+                        <option value="30">Últimos 30 dias</option>
+                        <option value="90">Últimos 90 dias</option>
+                    </select>
+                    <select class="filter-select" id="type-f" onchange="filterHistory()">
+                        <option value="">Todos tipos</option>
+                        <option value="single">⭐ Única</option>
+                        <option value="multiple">📋 Múltipla</option>
+                    </select>
+                    <div style="margin-left:auto;font-size:13px;color:var(--text-muted);" id="hist-count"></div>
+                </div>
+
+                <!-- Table -->
+                <div class="card">
+                    <div class="table-wrapper">
+                        <table class="data-table" id="hist-table">
+                            <thead>
+                                <tr>
+                                    <th>⭐</th>
+                                    <th>Aposta</th>
+                                    <th>Categoria</th>
+                                    <th>Seleção</th>
+                                    <th>Valor</th>
+                                    <th>Odd</th>
+                                    <th>Retorno</th>
+                                    <th>Status</th>
+                                    <th>Data</th>
+                                </tr>
+                            </thead>
+                            <tbody id="hist-tbody"></tbody>
+                        </table>
+                    </div>
+                    <div id="hist-empty" style="display:none;">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📜</div>
+                            <h3>Nenhum registro encontrado</h3>
+                            <p>Mude os filtros ou faça sua primeira aposta</p><a href="nova-aposta.html"
+                                class="btn btn-primary" style="margin-top:16px;">➕ Nova Aposta</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script>
+        const user = Auth.requireAuth();
+        if (!user) throw new Error();
+        document.getElementById('sidebar-name').textContent = user.name;
+        document.getElementById('sidebar-avatar').textContent = user.name.charAt(0).toUpperCase();
+
+        let allBets = [];
+
+        function loadHistory() {
+            const u = DataManager.getUserById(user.id);
+            document.querySelectorAll('.balance-display').forEach(el => el.textContent = Utils.fmt(u.balance));
+            allBets = DataManager.getUserBets(user.id).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            const stats = DataManager.getUserStats(user.id);
+
+            document.getElementById('hist-stats').innerHTML = `
+      <div class="stat-card primary"><div class="stat-icon primary">🎯</div><div class="stat-content"><div class="stat-label">Total Apostas</div><div class="stat-value">${stats.total}</div></div></div>
+      <div class="stat-card success"><div class="stat-icon success">🏆</div><div class="stat-content"><div class="stat-label">Ganhas</div><div class="stat-value">${stats.won}</div><div class="stat-change up">Taxa: ${stats.winRate.toFixed(1)}%</div></div></div>
+      <div class="stat-card danger"><div class="stat-icon danger">💔</div><div class="stat-content"><div class="stat-label">Perdidas</div><div class="stat-value">${stats.lost}</div></div></div>
+      <div class="stat-card accent"><div class="stat-icon accent">💰</div><div class="stat-content"><div class="stat-label">Total Ganho</div><div class="stat-value" style="font-size:18px;">${Utils.fmt(stats.totalWon)}</div></div></div>
+    `;
+            filterHistory();
+        }
+
+        function filterHistory() {
+            const search = document.getElementById('search').value.toLowerCase();
+            const status = document.getElementById('status-f').value;
+            const cat = document.getElementById('cat-f').value;
+            const period = document.getElementById('period-f').value;
+            const now = new Date();
+
+            let filtered = allBets.filter(b => {
+                const sText = b.type === 'multiple' ? b.title : (b.selection || '');
+                if (search && !b.title.toLowerCase().includes(search) && !sText.toLowerCase().includes(search)) return false;
+                if (status && b.status !== status) return false;
+                if (cat && b.category !== cat && b.type !== 'multiple') return false;
+                const type = document.getElementById('type-f').value;
+                if (type && b.type !== type) return false;
+                if (period) {
+                    const days = parseInt(period);
+                    const diffMs = now - new Date(b.createdAt);
+                    if (diffMs > days * 86400000) return false;
+                }
+                return true;
+            });
+
+            renderHistory(filtered);
+            document.getElementById('hist-count').textContent = `${filtered.length} registro${filtered.length !== 1 ? 's' : ''}`;
+        }
+
+        function renderHistory(bets) {
+            const tbody = document.getElementById('hist-tbody');
+            const empty = document.getElementById('hist-empty');
+            if (bets.length === 0) {
+                tbody.innerHTML = '';
+                document.getElementById('hist-table').style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+            document.getElementById('hist-table').style.display = '';
+            empty.style.display = 'none';
+            tbody.innerHTML = bets.map(b => {
+                const isMultiple = b.type === 'multiple';
+                const selText = isMultiple
+                    ? (b.selections || []).map(s => s.selection).join(' + ')
+                    : (b.selection || '');
+                const catText = isMultiple
+                    ? (b.selections || []).map(s => Utils.categoryIcon(s.category)).join(' ')
+                    : Utils.categoryIcon(b.category) + ' ' + b.category;
+                return `
+      <tr>
+        <td>${Utils.typeBadge(b.type)}</td>
+        <td>
+          <div style="font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis;">${b.title}</div>
+          ${b.event ? `<div style="font-size:11px;color:var(--text-muted);">${b.event}</div>` : ''}
+        </td>
+        <td><span style="white-space:nowrap;">${catText}</span></td>
+        <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;">${selText}</td>
+        <td style="font-weight:700;">${Utils.fmt(b.amount)}</td>
+        <td><span class="bet-odds-pill" style="font-size:12px;">${b.odds}x</span></td>
+        <td style="font-weight:700;color:${b.status === 'won' ? 'var(--success)' : b.status === 'lost' ? 'var(--danger)' : 'var(--text-secondary)'};"> 
+          ${b.status === 'won' ? '+' + Utils.fmt(b.amount * b.odds) : b.status === 'lost' ? '-' + Utils.fmt(b.amount) : Utils.fmt(b.amount * b.odds)}
+        </td>
+        <td>${Utils.statusBadge(b.status)}</td>
+        <td style="color:var(--text-muted);font-size:13px;">${Utils.fmtDateShort(b.createdAt)}</td>
+      </tr>`;
+            }).join('');
+        }
+
+        loadHistory();
+    </script>
+</body>
+
+</html>
