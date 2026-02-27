@@ -2,7 +2,7 @@
     "name": "BetManager",
     "short_name": "BetManager",
     "description": "Gerencie suas apostas únicas e múltiplas com facilidade",
-    "start_url": "/index.html",
+    "start_url": "/",
     "display": "standalone",
     "background_color": "#0a0b1a",
     "theme_color": "#6c63ff",
@@ -46,20 +46,6 @@
             "purpose": "any maskable"
         }
     ],
-    "screenshots": [
-        {
-            "src": "icons/screenshot-wide.png",
-            "sizes": "1280x720",
-            "type": "image/png",
-            "form_factor": "wide"
-        },
-        {
-            "src": "icons/screenshot-mobile.png",
-            "sizes": "390x844",
-            "type": "image/png",
-            "form_factor": "narrow"
-        }
-    ],
     "categories": [
         "finance",
         "sports"
@@ -69,7 +55,7 @@
             "name": "Nova Aposta Única",
             "short_name": "Única",
             "description": "Criar uma nova aposta única",
-            "url": "/nova-aposta.html",
+            "url": "/nova-aposta",
             "icons": [
                 {
                     "src": "icons/icon-96.png",
@@ -81,7 +67,7 @@
             "name": "Nova Aposta Múltipla",
             "short_name": "Múltipla",
             "description": "Criar um acumulador",
-            "url": "/nova-multipla.html",
+            "url": "/nova-multipla",
             "icons": [
                 {
                     "src": "icons/icon-96.png",
@@ -93,7 +79,7 @@
             "name": "Dashboard",
             "short_name": "Dashboard",
             "description": "Ver estatísticas",
-            "url": "/dashboard.html",
+            "url": "/dashboard",
             "icons": [
                 {
                     "src": "icons/icon-96.png",

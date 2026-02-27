@@ -347,7 +347,7 @@ const Auth = {
     requireAuth() {
         const user = DataManager.getCurrentUser();
         if (!user) {
-            window.location.href = 'index.html';
+            window.location.href = '/';
             return null;
         }
         return user;

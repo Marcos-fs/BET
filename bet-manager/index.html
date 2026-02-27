@@ -175,7 +175,7 @@
   <script>
     // Check if already logged in
     if (DataManager.getCurrentUser()) {
-      window.location.href = 'dashboard.html';
+      window.location.href = 'dashboard';
     }
 
     function switchTab(tab) {
@@ -228,16 +228,11 @@
           errEl.textContent = result.error; errEl.style.display = 'block';
           setLoading('login-btn', false, '<span>Entrar</span> →');
         } else {
-          window.location.href = 'dashboard.html';
+          window.location.href = 'dashboard';
         }
       }, 600);
     }
 
-    function loginDemo() {
-      document.getElementById('login-email').value = 'demo@betmanager.com';
-      document.getElementById('login-password').value = 'demo123';
-      handleLogin();
-    }
 
     function handleRegister() {
       const name = document.getElementById('reg-name').value.trim();
@@ -255,7 +250,7 @@
           errEl.textContent = result.error; errEl.style.display = 'block';
           setLoading('reg-btn', false, 'Criar Conta →');
         } else {
-          window.location.href = 'dashboard.html';
+          window.location.href = 'dashboard';
         }
       }, 600);
     }

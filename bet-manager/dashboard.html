@@ -24,18 +24,18 @@
             </div>
             <nav class="sidebar-nav">
                 <div class="nav-section-label">Principal</div>
-                <a href="dashboard.html" class="nav-item active"><span class="nav-item-icon">🏠</span> Dashboard</a>
-                <a href="nova-aposta.html" class="nav-item"><span class="nav-item-icon">⭐</span> Aposta Única</a>
-                <a href="nova-multipla.html" class="nav-item"><span class="nav-item-icon">📋</span> Aposta Múltipla</a>
-                <a href="apostas.html" class="nav-item"><span class="nav-item-icon">🎯</span> Minhas Apostas</a>
+                <a href="dashboard" class="nav-item active"><span class="nav-item-icon">🏠</span> Dashboard</a>
+                <a href="nova-aposta" class="nav-item"><span class="nav-item-icon">⭐</span> Aposta Única</a>
+                <a href="nova-multipla" class="nav-item"><span class="nav-item-icon">📋</span> Aposta Múltipla</a>
+                <a href="apostas" class="nav-item"><span class="nav-item-icon">🎯</span> Minhas Apostas</a>
                 <div class="nav-section-label">Histórico & Finanças</div>
-                <a href="historico.html" class="nav-item"><span class="nav-item-icon">📜</span> Histórico</a>
-                <a href="carteira.html" class="nav-item"><span class="nav-item-icon">💰</span> Carteira</a>
+                <a href="historico" class="nav-item"><span class="nav-item-icon">📜</span> Histórico</a>
+                <a href="carteira" class="nav-item"><span class="nav-item-icon">💰</span> Carteira</a>
                 <div class="nav-section-label">Conta</div>
-                <a href="perfil.html" class="nav-item"><span class="nav-item-icon">👤</span> Perfil</a>
+                <a href="perfil" class="nav-item"><span class="nav-item-icon">👤</span> Perfil</a>
             </nav>
             <div class="sidebar-footer">
-                <div class="user-info" id="user-info-sidebar" onclick="window.location.href='perfil.html'">
+                <div class="user-info" onclick="window.location.href='perfil'">
                     <div class="user-avatar" id="sidebar-avatar">?</div>
                     <div class="user-details">
                         <div class="user-name" id="sidebar-name">Carregando...</div>
@@ -63,7 +63,8 @@
                     <span class="topbar-balance-label">💰 Saldo</span>
                     <span class="topbar-balance-val balance-display">R$ 0,00</span>
                 </div>
-                <a href="nova-aposta.html" class="btn btn-primary btn-sm">➕ Nova Aposta</a>
+                <a href="nova-aposta" class="btn btn-primary btn-sm">⭐ Aposta Única</a>
+                <a href="nova-multipla" class="btn btn-accent btn-sm">📋 Múltipla</a>
             </div>
 
             <div class="page-content">
@@ -154,7 +155,7 @@
                                 <div class="card-title">🕒 Apostas Recentes</div>
                                 <div class="card-subtitle">Últimas 5 apostas realizadas</div>
                             </div>
-                            <a href="apostas.html" class="btn btn-outline btn-sm">Ver todas</a>
+                            <a href="apostas" class="btn btn-outline btn-sm">Ver todas</a>
                         </div>
                         <div id="recent-bets"></div>
                     </div>
@@ -185,8 +186,7 @@
         document.getElementById('sidebar-avatar').textContent = user.name.charAt(0).toUpperCase();
 
         function doLogout() {
-            DataManager.logout();
-            window.location.href = 'index.html';
+            DataManager.logout(); window.location.href = '/';
         }
 
         function loadDashboard() {
