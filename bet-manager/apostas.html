@@ -69,9 +69,12 @@
 
         <div class="main-content">
             <div class="topbar">
+                <button class="menu-toggle" id="mobile-toggle" onclick="toggleSidebar()">
+                    <span>☰</span>
+                </button>
                 <div class="topbar-title">
                     <h1>Minhas Apostas</h1>
-                    <p>Gerencie e resolva suas apostas únicas</p>
+                    <p>Acompanhe seus palpites em tempo real</p>
                 </div>
                 <div class="topbar-spacer"></div>
                 <div class="topbar-balance"><span class="topbar-balance-label">💰 Saldo</span><span
@@ -165,6 +168,22 @@
         if (!user) throw new Error();
         document.getElementById('sidebar-name').textContent = user.name;
         document.getElementById('sidebar-avatar').textContent = user.name.charAt(0).toUpperCase();
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('mobile-toggle');
+            if (window.innerWidth <= 1024 &&
+                sidebar.classList.contains('open') &&
+                !sidebar.contains(e.target) &&
+                !toggle.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
 
         let currentBetId = null;
         let allBets = [];

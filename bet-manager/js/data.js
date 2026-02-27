@@ -239,107 +239,6 @@ const DataManager = {
         const roi = totalInvested > 0 ? (((totalWon - totalInvested) / totalInvested) * 100) : 0;
         return { total, totalSingles, totalMultiples, pending, won, lost, cancelled, totalInvested, totalWon, winRate, roi };
     },
-
-    // ---- SEED DEMO DATA ----
-    seedDemoIfNeeded() {
-        const users = this.getUsers();
-        if (users.length === 0) {
-            const res = this.createUser('João Silva', 'demo@betmanager.com', 'demo123');
-            if (res.user) {
-                const uid = res.user.id;
-                // Add some demo bet history
-                const categories = ['Futebol', 'Basquete', 'Tênis', 'E-Sports', 'Fórmula 1'];
-                const demoBets = [
-                    { title: 'Brasil x Argentina - Brasil Vence', category: 'Futebol', amount: 100, odds: 2.10, selection: 'Brasil Vence', event: 'Copa América 2025' },
-                    { title: 'Lakers x Bulls - Lakers Vence', category: 'Basquete', amount: 50, odds: 1.75, selection: 'Lakers Vence', event: 'NBA 2025' },
-                    { title: 'Djokovic x Alcaraz - Djokovic', category: 'Tênis', amount: 80, odds: 1.90, selection: 'Djokovic', event: 'Wimbledon 2025' },
-                    { title: 'FURIA x NaVi - FURIA', category: 'E-Sports', amount: 60, odds: 3.20, selection: 'FURIA', event: 'CS2 Majors 2025' },
-                    { title: 'Verstappen - 1º lugar GP Brasil', category: 'Fórmula 1', amount: 120, odds: 2.50, selection: 'Verstappen P1', event: 'GP Brasil F1 2025' },
-                ];
-                const statuses = ['won', 'lost', 'won', 'lost', 'pending'];
-                demoBets.forEach((b, i) => {
-                    const bets = this.getBets();
-                    const now = new Date();
-                    now.setDate(now.getDate() - (demoBets.length - i) * 3);
-                    const bet = {
-                        id: 'b_demo_' + i,
-                        userId: uid,
-                        ...b,
-                        unique: true,
-                        status: statuses[i],
-                        createdAt: now.toISOString(),
-                    };
-                    if (statuses[i] !== 'pending') bet.resolvedAt = now.toISOString();
-                    bets.push(bet);
-                    this.saveBets(bets);
-                    // Balance adjustments
-                    this.updateBalance(uid, -b.amount);
-                    this.addTransaction(uid, { type: 'bet', description: `Aposta: ${b.title}`, amount: -b.amount, betId: bet.id });
-                    if (statuses[i] === 'won') {
-                        const win = parseFloat((b.amount * b.odds).toFixed(2));
-                        this.updateBalance(uid, win);
-                        this.addTransaction(uid, { type: 'win', description: `Ganho: ${b.title}`, amount: win, betId: bet.id });
-                    }
-                });
-                // Extra deposit
-                this.deposit(uid, 500);
-
-                // Demo multiple bets
-                const demoMultiples = [
-                    {
-                        title: 'Combo Futebol Europeu',
-                        amount: 50,
-                        selections: [
-                            { title: 'Real Madrid x Barcelona', category: 'Futebol', selection: 'Real Madrid Vence', odds: 1.90 },
-                            { title: 'PSG x Lyon', category: 'Futebol', selection: 'PSG Vence', odds: 1.60 },
-                            { title: 'Man City x Arsenal', category: 'Futebol', selection: 'Man City Vence', odds: 1.75 },
-                        ],
-                        notes: 'Combo de favoritos europeus',
-                        status: 'won',
-                    },
-                    {
-                        title: 'Mix Esportes',
-                        amount: 40,
-                        selections: [
-                            { title: 'Lakers x Celtics', category: 'Basquete', selection: 'Lakers Vence', odds: 2.10 },
-                            { title: 'Federer x Djokovic', category: 'Tênis', selection: 'Djokovic Vence', odds: 1.80 },
-                        ],
-                        notes: '',
-                        status: 'pending',
-                    },
-                ];
-                demoMultiples.forEach((mb, i) => {
-                    const allBets = this.getBets();
-                    const totalOdds = mb.selections.reduce((acc, s) => acc * s.odds, 1);
-                    const now = new Date();
-                    now.setDate(now.getDate() - (4 + i) * 2);
-                    const mBet = {
-                        id: 'bm_demo_' + i,
-                        userId: uid,
-                        title: mb.title,
-                        amount: mb.amount,
-                        odds: parseFloat(totalOdds.toFixed(2)),
-                        selections: mb.selections,
-                        notes: mb.notes,
-                        status: mb.status,
-                        type: 'multiple',
-                        unique: false,
-                        createdAt: now.toISOString(),
-                    };
-                    if (mb.status !== 'pending') mBet.resolvedAt = now.toISOString();
-                    allBets.push(mBet);
-                    this.saveBets(allBets);
-                    this.updateBalance(uid, -mb.amount);
-                    this.addTransaction(uid, { type: 'bet_multiple', description: `Múltipla: ${mb.title}`, amount: -mb.amount, betId: mBet.id });
-                    if (mb.status === 'won') {
-                        const win = parseFloat((mb.amount * totalOdds).toFixed(2));
-                        this.updateBalance(uid, win);
-                        this.addTransaction(uid, { type: 'win', description: `Ganho Múltipla: ${mb.title}`, amount: win, betId: mBet.id });
-                    }
-                });
-            }
-        }
-    }
 };
 
 // ===================== AUTH =====================
@@ -443,8 +342,8 @@ const Utils = {
     },
 };
 
-// Seed and init
-DataManager.seedDemoIfNeeded();
+// Init
+// (None needed for seed now)
 
 // ===================== PWA SERVICE WORKER REGISTRATION =====================
 if ('serviceWorker' in navigator) {

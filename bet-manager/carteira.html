@@ -50,9 +50,12 @@
 
         <div class="main-content">
             <div class="topbar">
+                <button class="menu-toggle" id="mobile-toggle" onclick="toggleSidebar()">
+                    <span>☰</span>
+                </button>
                 <div class="topbar-title">
                     <h1>Carteira</h1>
-                    <p>Gerencie seu saldo e transações</p>
+                    <p>Gerencie seus fundos</p>
                 </div>
                 <div class="topbar-spacer"></div>
                 <div class="topbar-action">
@@ -114,6 +117,30 @@
                 </div>
             </div>
         </div>
+
+        <!-- NEW: Bottom Nav for Mobile -->
+        <nav class="mobile-nav">
+            <a href="dashboard" class="mobile-nav-item">
+                <span>🏠</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="nova-aposta" class="mobile-nav-item">
+                <span>⭐</span>
+                <span>Única</span>
+            </a>
+            <a href="nova-multipla" class="mobile-nav-item">
+                <span>📋</span>
+                <span>Múltipla</span>
+            </a>
+            <a href="apostas" class="mobile-nav-item">
+                <span>🎯</span>
+                <span>Apostas</span>
+            </a>
+            <a href="perfil" class="mobile-nav-item">
+                <span>👤</span>
+                <span>Perfil</span>
+            </a>
+        </nav>
     </div>
 
     <!-- DEPOSIT MODAL -->
@@ -176,6 +203,22 @@
         if (!user) throw new Error();
         document.getElementById('sidebar-name').textContent = user.name;
         document.getElementById('sidebar-avatar').textContent = user.name.charAt(0).toUpperCase();
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('mobile-toggle');
+            if (sidebar && window.innerWidth <= 1024 &&
+                sidebar.classList.contains('open') &&
+                !sidebar.contains(e.target) &&
+                !toggle.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
 
         function loadPage() {
             const u = DataManager.getUserById(user.id);
