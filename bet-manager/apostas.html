@@ -162,12 +162,18 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/data.js"></script>
     <script>
-        const user = Auth.requireAuth();
-        if (!user) throw new Error();
-        document.getElementById('sidebar-name').textContent = user.name;
-        document.getElementById('sidebar-avatar').textContent = user.name.charAt(0).toUpperCase();
+        async function init() {
+            const userCheck = await Auth.requireAuth();
+            if (!userCheck) return;
+
+            document.getElementById('sidebar-name').textContent = userCheck.name;
+            document.getElementById('sidebar-avatar').textContent = userCheck.name.charAt(0).toUpperCase();
+
+            await loadBets();
+        }
 
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
@@ -188,10 +194,10 @@
         let currentBetId = null;
         let allBets = [];
 
-        function loadBets() {
-            const freshUser = DataManager.getUserById(user.id);
-            document.querySelectorAll('.balance-display').forEach(el => el.textContent = Utils.fmt(freshUser.balance));
-            allBets = DataManager.getUserBets(user.id);
+        async function loadBets() {
+            const user = await DataManager.getCurrentUser();
+            document.querySelectorAll('.balance-display').forEach(el => el.textContent = Utils.fmt(user.balance));
+            allBets = await DataManager.getUserBets(user.id);
             filterBets();
         }
 
@@ -231,7 +237,7 @@
                 const potential = (b.amount * b.odds).toFixed(2);
                 const isPending = b.status === 'pending';
                 const isMultiple = b.type === 'multiple';
-                const typeBadgeHtml = Utils.typeBadge(b.type);
+                const typeBadgeHtml = isMultiple ? '<span class="badge badge-primary">📋 Múltipla</span>' : '<span class="badge badge-accent">⭐ Única</span>';
                 const bodyHtml = isMultiple
                     ? `<div style="margin-bottom:10px;">${(b.selections || []).map((s, i) => `
                         <div style="display:flex;align-items:baseline;gap:6px;font-size:12px;margin-bottom:4px;">
@@ -273,7 +279,7 @@
         }
 
         function openResolve(id) {
-            const bet = DataManager.getBetById(id);
+            const bet = allBets.find(b => b.id === id);
             if (!bet) return;
             currentBetId = id;
             document.getElementById('resolve-bet-title').textContent = bet.title;
@@ -282,7 +288,7 @@
         }
 
         function openCancel(id) {
-            const bet = DataManager.getBetById(id);
+            const bet = allBets.find(b => b.id === id);
             if (!bet) return;
             currentBetId = id;
             document.getElementById('cancel-bet-title').textContent = bet.title;
@@ -294,23 +300,25 @@
             currentBetId = null;
         }
 
-        function resolveCurrentBet(result) {
+        async function resolveCurrentBet(result) {
             if (!currentBetId) return;
-            DataManager.resolveBet(currentBetId, result);
+            const user = await DataManager.getCurrentUser();
+            await DataManager.resolveBet(user.id, currentBetId, result);
             closeModal('resolve-modal');
             Toast[result === 'won' ? 'success' : 'error'](
                 result === 'won' ? '🏆 Parabéns! Aposta ganha!' : '💔 Aposta marcada como perdida',
                 result === 'won' ? 'Seus ganhos foram creditados na carteira.' : 'Melhor sorte na próxima!'
             );
-            loadBets();
+            await loadBets();
         }
 
-        function cancelCurrentBet() {
+        async function cancelCurrentBet() {
             if (!currentBetId) return;
-            DataManager.cancelBet(currentBetId);
+            const user = await DataManager.getCurrentUser();
+            await DataManager.cancelBet(user.id, currentBetId);
             closeModal('cancel-modal');
             Toast.info('↩️ Aposta cancelada', 'O valor foi reembolsado para sua carteira.');
-            loadBets();
+            await loadBets();
         }
 
         // Close on backdrop click
@@ -318,7 +326,7 @@
             el.addEventListener('click', e => { if (e.target === el) closeModal(el.id); });
         });
 
-        loadBets();
+        init();
     </script>
 </body>
 

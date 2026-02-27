@@ -203,14 +203,20 @@
         </nav>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/data.js"></script>
     <script>
-        const user = Auth.requireAuth();
-        if (!user) throw new Error('Not logged in');
+        async function init() {
+            const user = await Auth.requireAuth();
+            if (!user) return;
 
-        document.getElementById('topbar-name').textContent = user.name.split(' ')[0];
-        document.getElementById('sidebar-name').textContent = user.name;
-        document.getElementById('sidebar-avatar').textContent = user.name.charAt(0).toUpperCase();
+            document.getElementById('topbar-name').textContent = user.name.split(' ')[0];
+            document.getElementById('sidebar-name').textContent = user.name;
+            document.getElementById('sidebar-avatar').textContent = user.name.charAt(0).toUpperCase();
+
+            // Load initial data
+            await loadDashboard(user);
+        }
 
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
@@ -232,10 +238,10 @@
             DataManager.logout(); window.location.href = '/';
         }
 
-        function loadDashboard() {
-            const freshUser = DataManager.getUserById(user.id);
-            const bets = DataManager.getUserBets(user.id);
-            const stats = DataManager.getUserStats(user.id);
+        async function loadDashboard(user) {
+            const freshUser = await DataManager.getCurrentUser();
+            const bets = await DataManager.getUserBets(user.id);
+            const stats = await DataManager.getUserStats(user.id);
 
             // Update balance
             document.querySelectorAll('.balance-display').forEach(el => el.textContent = Utils.fmt(freshUser.balance));
@@ -303,38 +309,47 @@
         }
 
         function buildChart(bets) {
-            const weeks = ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'];
-            const data = weeks.map((w, i) => {
-                const weekBets = bets.filter(b => {
-                    const d = new Date(b.createdAt);
-                    const week = Math.floor((d.getDate() - 1) / 7);
-                    return week === i;
+            // Group bets by last 7 days for a better mobile/PC view
+            const days = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                days.push({
+                    date: d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+                    iso: d.toISOString().split('T')[0],
+                    won: 0, lost: 0, pending: 0
                 });
-                return {
-                    label: w,
-                    won: weekBets.filter(b => b.status === 'won').length,
-                    lost: weekBets.filter(b => b.status === 'lost').length,
-                    pending: weekBets.filter(b => b.status === 'pending').length,
-                };
+            }
+
+            bets.forEach(b => {
+                const bDate = b.createdAt.split('T')[0];
+                const day = days.find(d => d.iso === bDate);
+                if (day) {
+                    if (b.status === 'won') day.won++;
+                    else if (b.status === 'lost') day.lost++;
+                    else day.pending++;
+                }
             });
 
-            const maxVal = Math.max(...data.map(d => d.won + d.lost + d.pending), 1);
+            const maxVal = Math.max(...days.map(d => d.won + d.lost + d.pending), 1);
             const chartEl = document.getElementById('chart-area');
-            chartEl.innerHTML = data.map(d => {
+
+            chartEl.innerHTML = days.map(d => {
                 const total = d.won + d.lost + d.pending;
-                const hWon = total > 0 ? Math.max((d.won / maxVal) * 160, d.won > 0 ? 12 : 0) : 0;
-                const hLost = total > 0 ? Math.max((d.lost / maxVal) * 160, d.lost > 0 ? 12 : 0) : 0;
-                const hPend = total > 0 ? Math.max((d.pending / maxVal) * 160, d.pending > 0 ? 12 : 0) : 0;
+                const hWon = total > 0 ? (d.won / maxVal) * 150 : 0;
+                const hLost = total > 0 ? (d.lost / maxVal) * 150 : 0;
+                const hPend = total > 0 ? (d.pending / maxVal) * 150 : 0;
+
                 return `
-        <div class="chart-bar-wrap">
-          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;">
-            ${d.pending > 0 ? `<div class="chart-bar" style="height:${hPend}px;background:rgba(255,165,2,0.7);" title="${d.pending} pendente(s)"></div>` : ''}
-            ${d.lost > 0 ? `<div class="chart-bar" style="height:${hLost}px;background:rgba(255,71,87,0.8);" title="${d.lost} perdida(s)"></div>` : ''}
-            ${d.won > 0 ? `<div class="chart-bar" style="height:${hWon}px;background:rgba(46,213,115,0.85);" title="${d.won} ganha(s)"></div>` : ''}
-            ${total === 0 ? `<div style="height:4px;background:rgba(255,255,255,0.05);width:100%;border-radius:4px;"></div>` : ''}
-          </div>
-          <div class="chart-label">${d.label}</div>
-        </div>`;
+                    <div class="chart-bar-wrap">
+                        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;justify-content:flex-end;height:160px;">
+                            ${d.pending > 0 ? `<div class="chart-bar" style="height:${hPend}px;background:var(--warning);width:100%;border-radius:2px;" title="${d.pending} pendente"></div>` : ''}
+                            ${d.lost > 0 ? `<div class="chart-bar" style="height:${hLost}px;background:var(--danger);width:100%;border-radius:2px;" title="${d.lost} perdida"></div>` : ''}
+                            ${d.won > 0 ? `<div class="chart-bar" style="height:${hWon}px;background:var(--success);width:100%;border-radius:2px;" title="${d.won} ganha"></div>` : ''}
+                            ${total === 0 ? `<div style="height:2px;background:rgba(255,255,255,0.1);width:100%;"></div>` : ''}
+                        </div>
+                        <div class="chart-label">${d.date}</div>
+                    </div>`;
             }).join('');
         }
 
@@ -363,7 +378,7 @@
             }).join('');
         }
 
-        loadDashboard();
+        init();
     </script>
 </body>
 

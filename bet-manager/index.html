@@ -171,10 +171,11 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/data.js"></script>
   <script>
-    // Check if already logged in
-    if (DataManager.getCurrentUser()) {
+    // Check if already logged in (local check for speed)
+    if (localStorage.getItem('betmgr_current_user')) {
       window.location.href = 'dashboard';
     }
 
@@ -215,26 +216,25 @@
       btn.innerHTML = loading ? '<span class="spinner">⏳</span> Aguarde...' : text;
     }
 
-    function handleLogin() {
+    async function handleLogin() {
       const email = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
       const errEl = document.getElementById('login-error');
       errEl.style.display = 'none';
       if (!email || !password) { errEl.textContent = 'Preencha todos os campos.'; errEl.style.display = 'block'; return; }
       setLoading('login-btn', true, '<span>Entrar</span> →');
-      setTimeout(() => {
-        const result = Auth.login(email, password);
-        if (result.error) {
-          errEl.textContent = result.error; errEl.style.display = 'block';
-          setLoading('login-btn', false, '<span>Entrar</span> →');
-        } else {
-          window.location.href = 'dashboard';
-        }
-      }, 600);
+
+      const result = await Auth.login(email, password);
+      if (result.error) {
+        errEl.textContent = result.error; errEl.style.display = 'block';
+        setLoading('login-btn', false, '<span>Entrar</span> →');
+      } else {
+        window.location.href = 'dashboard';
+      }
     }
 
 
-    function handleRegister() {
+    async function handleRegister() {
       const name = document.getElementById('reg-name').value.trim();
       const email = document.getElementById('reg-email').value.trim();
       const password = document.getElementById('reg-password').value;
@@ -244,15 +244,14 @@
       if (!name || !email || !password || !confirm) { errEl.textContent = 'Preencha todos os campos.'; errEl.style.display = 'block'; return; }
       if (password !== confirm) { errEl.textContent = 'As senhas não coincidem.'; errEl.style.display = 'block'; return; }
       setLoading('reg-btn', true, 'Criar Conta →');
-      setTimeout(() => {
-        const result = Auth.register(name, email, password);
-        if (result.error) {
-          errEl.textContent = result.error; errEl.style.display = 'block';
-          setLoading('reg-btn', false, 'Criar Conta →');
-        } else {
-          window.location.href = 'dashboard';
-        }
-      }, 600);
+
+      const result = await Auth.register(name, email, password);
+      if (result.error) {
+        errEl.textContent = result.error; errEl.style.display = 'block';
+        setLoading('reg-btn', false, 'Criar Conta →');
+      } else {
+        window.location.href = 'dashboard';
+      }
     }
 
     // Enter key support

@@ -2,48 +2,60 @@
 <html lang="pt-BR">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#6c63ff" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="BetManager" />
-    <link rel="manifest" href="manifest.json" />
-    <link rel="apple-touch-icon" href="icons/icon-192.png" />
-    <title>BetManager – Perfil</title>
-    <link rel="stylesheet" href="styles/main.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil - BetManager</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
 </head>
 
 <body>
-    <div class="app-layout">
-        <aside class="sidebar">
-            <div class="sidebar-logo">
-                <div class="sidebar-logo-icon">🎯</div><span class="sidebar-logo-text">BetManager</span>
-            </div>
-            <nav class="sidebar-nav">
-                <div class="nav-section-label">Principal</div>
-                <a href="dashboard" class="nav-item"><span class="nav-item-icon">🏠</span> Dashboard</a>
-                <a href="nova-aposta" class="nav-item"><span class="nav-item-icon">⭐</span> Aposta Única</a>
-                <a href="nova-multipla" class="nav-item"><span class="nav-item-icon">📋</span> Aposta Múltipla</a>
-                <a href="apostas" class="nav-item"><span class="nav-item-icon">🎯</span> Minhas Apostas</a>
-                <div class="nav-section-label">Histórico & Finanças</div>
-                <a href="historico" class="nav-item"><span class="nav-item-icon">📜</span> Histórico</a>
-                <a href="carteira" class="nav-item"><span class="nav-item-icon">💰</span> Carteira</a>
-                <div class="nav-section-label">Conta</div>
-                <a href="perfil" class="nav-item active"><span class="nav-item-icon">👤</span> Perfil</a>
-            </nav>
-            <div class="sidebar-footer">
-                <div class="user-info" onclick="window.location.href='perfil.html'">
-                    <div class="user-avatar" id="sidebar-avatar">?</div>
-                    <div class="user-details">
-                        <div class="user-name" id="sidebar-name">...</div>
-                        <div class="user-role">Apostador</div>
-                    </div>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">🚀</div>
+                    <div class="logo-text">Bet<span>Manager</span></div>
                 </div>
-                <button onclick="DataManager.logout();window.location.href='/';"
-                    style="width:100%;margin-top:8px;padding:8px;color:var(--text-muted);background:none;border:none;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:var(--radius-md);cursor:pointer;font-size:13px;font-weight:600;transition:var(--transition);"
-                    onmouseover="this.style.background='rgba(255,71,87,0.1)';this.style.color='var(--danger)'"
-                    onmouseout="this.style.background='';this.style.color='var(--text-muted)'">
-                    <span>🚪</span> Sair
+            </div>
+
+            <div class="user-profile">
+                <div class="user-avatar" id="sidebar-avatar">?</div>
+                <div class="user-info">
+                    <div class="user-name" id="sidebar-name">Carregando...</div>
+                    <div class="user-status"><span class="status-dot"></span>Online</div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="dashboard" class="nav-item">
+                    <span class="nav-icon">🏠</span> Dashboard
+                </a>
+                <a href="nova-aposta" class="nav-item">
+                    <span class="nav-icon">⭐</span> Aposta Única
+                </a>
+                <a href="nova-multipla" class="nav-item">
+                    <span class="nav-icon">📋</span> Aposta Múltipla
+                </a>
+                <a href="apostas" class="nav-item">
+                    <span class="nav-icon">🎯</span> Minhas Apostas
+                </a>
+                <a href="historico" class="nav-item">
+                    <span class="nav-icon">📜</span> Histórico
+                </a>
+                <a href="carteira" class="nav-item">
+                    <span class="nav-icon">💰</span> Carteira
+                </a>
+                <a href="perfil" class="nav-item active">
+                    <span class="nav-icon">👤</span> Perfil
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn-logout" onclick="doLogout()">
+                    <span>🚪</span> Sair da Conta
                 </button>
             </div>
         </aside>
@@ -55,313 +67,130 @@
                 </button>
                 <div class="topbar-title">
                     <h1>Perfil</h1>
-                    <p>Suas informações e estatísticas</p>
+                    <p>Sua conta e estatísticas</p>
                 </div>
                 <div class="topbar-spacer"></div>
-                <div class="topbar-balance"><span class="topbar-balance-label">💰 Saldo</span><span
-                        class="topbar-balance-val balance-display">R$ 0,00</span></div>
+                <div class="topbar-balance">
+                    <span class="topbar-balance-label">💰 Saldo</span>
+                    <span class="topbar-balance-val balance-display">R$ 0,00</span>
+                </div>
             </div>
 
             <div class="page-content">
-                <div style="display:grid;grid-template-columns:300px 1fr;gap:24px;align-items:start;">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:24px;">
+                    <!-- User Card -->
+                    <div class="card" style="text-align:center;padding:40px 20px;">
+                        <div class="user-avatar" id="profile-avatar"
+                            style="width:100px;height:100px;font-size:40px;margin:0 auto 20px;">?</div>
+                        <h2 id="profile-name" style="margin-bottom:4px;">...</h2>
+                        <p id="profile-email" style="color:var(--text-secondary);font-size:14px;margin-bottom:24px;">...
+                        </p>
 
-                    <!-- Profile Card -->
-                    <div style="display:flex;flex-direction:column;gap:16px;">
-                        <div class="card" style="text-align:center;">
-                            <div class="profile-avatar-large" id="profile-avatar">?</div>
-                            <div class="profile-name" id="profile-name">...</div>
-                            <div class="profile-email" id="profile-email">...</div>
-                            <div style="font-size:12px;color:var(--text-muted);margin-top:8px;">📅 Membro desde <span
-                                    id="profile-since">...</span></div>
-                            <div class="profile-stats">
-                                <div class="profile-stat">
-                                    <div class="profile-stat-value" id="pstat-total">0</div>
-                                    <div class="profile-stat-label">Apostas</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:left;">
+                            <div
+                                style="background:var(--bg-card);padding:16px;border-radius:var(--radius-lg);border:1px solid var(--border-color);">
+                                <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">Membro desde
                                 </div>
-                                <div class="profile-stat">
-                                    <div class="profile-stat-value" style="color:var(--success);" id="pstat-won">0</div>
-                                    <div class="profile-stat-label">Ganhas</div>
-                                </div>
-                                <div class="profile-stat">
-                                    <div class="profile-stat-value" style="color:var(--primary-light);"
-                                        id="pstat-winrate">0%</div>
-                                    <div class="profile-stat-label">Taxa</div>
-                                </div>
+                                <div id="profile-since" style="font-weight:600;">...</div>
                             </div>
-                        </div>
-
-                        <!-- Achievements -->
-                        <div class="card">
-                            <div class="card-title" style="margin-bottom:14px;">🏆 Conquistas</div>
-                            <div id="achievements" style="display:flex;flex-direction:column;gap:10px;"></div>
-                        </div>
-
-                        <!-- Danger Zone -->
-                        <div class="card" style="border-color:rgba(255,71,87,0.2);">
-                            <div class="card-title" style="color:var(--danger);margin-bottom:14px;">⚠️ Zona de Perigo
+                            <div
+                                style="background:var(--bg-card);padding:16px;border-radius:var(--radius-lg);border:1px solid var(--border-color);">
+                                <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">Saldo Atual</div>
+                                <div class="balance-display" style="font-weight:700;color:var(--success);">R$ 0,00</div>
                             </div>
-                            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;">Esta ação irá
-                                apagar todos os seus dados e é irreversível.</p>
-                            <button class="btn btn-danger btn-full btn-sm" onclick="confirmReset()">🗑️ Resetar todos os
-                                dados</button>
                         </div>
                     </div>
 
-                    <!-- Edit Forms -->
-                    <div style="display:flex;flex-direction:column;gap:16px;">
-
-                        <!-- Edit Profile -->
-                        <div class="card">
-                            <div class="card-header">
-                                <div>
-                                    <div class="card-title">✏️ Editar Perfil</div>
-                                    <div class="card-subtitle">Atualize suas informações</div>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">Nome Completo</label>
-                                    <input type="text" class="form-control" id="edit-name" placeholder="Seu nome" />
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">E-mail</label>
-                                    <input type="email" class="form-control" id="edit-email"
-                                        placeholder="seu@email.com" />
-                                </div>
-                            </div>
-                            <div id="profile-error"
-                                style="color:var(--danger);font-size:13px;margin-bottom:10px;display:none;"></div>
-                            <button class="btn btn-primary" onclick="saveProfile()">💾 Salvar Alterações</button>
+                    <!-- Stats Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">📊 Estatísticas Gerais</div>
                         </div>
-
-                        <!-- Change Password -->
-                        <div class="card">
-                            <div class="card-header">
-                                <div>
-                                    <div class="card-title">🔒 Alterar Senha</div>
-                                    <div class="card-subtitle">Mantenha sua conta segura</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                            <div>
+                                <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">Taxa de Acerto
                                 </div>
+                                <div id="stat-winrate"
+                                    style="font-size:28px;font-weight:800;color:var(--primary-light);">0%</div>
                             </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">Senha Atual</label>
-                                    <input type="password" class="form-control" id="cur-pass" placeholder="••••••••" />
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Nova Senha</label>
-                                    <input type="password" class="form-control" id="new-pass"
-                                        placeholder="Mín. 6 caracteres" />
-                                </div>
+                            <div>
+                                <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">ROI Médio</div>
+                                <div id="stat-roi" style="font-size:28px;font-weight:800;color:var(--accent);">0%</div>
                             </div>
-                            <div id="pass-error"
-                                style="color:var(--danger);font-size:13px;margin-bottom:10px;display:none;"></div>
-                            <button class="btn btn-accent" onclick="changePassword()">🔒 Alterar Senha</button>
                         </div>
-
-                        <!-- Full Stats -->
-                        <div class="card">
-                            <div class="card-header">
-                                <div>
-                                    <div class="card-title">📊 Estatísticas Completas</div>
-                                </div>
+                        <hr style="border:0;border-top:1px solid var(--border-color);margin:20px 0;">
+                        <div style="display:flex;justify-content:space-between;">
+                            <div style="text-align:center;">
+                                <div id="stat-total" style="font-weight:700;">0</div>
+                                <div style="font-size:11px;color:var(--text-muted);">Apostas</div>
                             </div>
-                            <div id="full-stats" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;"></div>
-                        </div>
-
-                        <!-- Category Breakdown -->
-                        <div class="card">
-                            <div class="card-header">
-                                <div>
-                                    <div class="card-title">🏷️ Desempenho por Categoria</div>
-                                </div>
+                            <div style="text-align:center;">
+                                <div id="stat-won" style="font-weight:700;color:var(--success);">0</div>
+                                <div style="font-size:11px;color:var(--text-muted);">Ganhas</div>
                             </div>
-                            <div id="cat-breakdown"></div>
+                            <div style="text-align:center;">
+                                <div id="stat-lost" style="font-weight:700;color:var(--danger);">0</div>
+                                <div style="font-size:11px;color:var(--text-muted);">Perdidas</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- NEW: Bottom Nav for Mobile -->
+        <!-- Bottom Nav -->
         <nav class="mobile-nav">
-            <a href="dashboard" class="mobile-nav-item">
-                <span>🏠</span>
-                <span>Dashboard</span>
-            </a>
-            <a href="nova-aposta" class="mobile-nav-item">
-                <span>⭐</span>
-                <span>Única</span>
-            </a>
-            <a href="nova-multipla" class="mobile-nav-item">
-                <span>📋</span>
-                <span>Múltipla</span>
-            </a>
-            <a href="apostas" class="mobile-nav-item">
-                <span>🎯</span>
-                <span>Apostas</span>
-            </a>
-            <a href="perfil" class="mobile-nav-item">
-                <span>👤</span>
-                <span>Perfil</span>
-            </a>
+            <a href="dashboard" class="mobile-nav-item"><span>🏠</span><span>Início</span></a>
+            <a href="nova-aposta" class="mobile-nav-item"><span>⭐</span><span>Única</span></a>
+            <a href="nova-multipla" class="mobile-nav-item"><span>📋</span><span>Múltipla</span></a>
+            <a href="apostas" class="mobile-nav-item"><span>🎯</span><span>Apostas</span></a>
+            <a href="perfil" class="mobile-nav-item active"><span>👤</span><span>Perfil</span></a>
         </nav>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/data.js"></script>
     <script>
-        const user = Auth.requireAuth();
-        if (!user) throw new Error();
+        async function init() {
+            const user = await Auth.requireAuth();
+            if (!user) return;
 
-        function loadProfile() {
-            const u = DataManager.getUserById(user.id);
-            const stats = DataManager.getUserStats(user.id);
-            const bets = DataManager.getUserBets(user.id);
+            document.getElementById('sidebar-name').textContent = user.name;
+            document.getElementById('sidebar-avatar').textContent = user.name.charAt(0).toUpperCase();
 
-            document.querySelectorAll('.balance-display').forEach(el => el.textContent = Utils.fmt(u.balance));
-            document.getElementById('sidebar-name').textContent = u.name;
-            document.getElementById('sidebar-avatar').textContent = u.name.charAt(0).toUpperCase();
-
-            function toggleSidebar() {
-                document.getElementById('sidebar').classList.toggle('open');
-            }
-
-            // Close sidebar when clicking outside on mobile
-            document.addEventListener('click', (e) => {
-                const sidebar = document.getElementById('sidebar');
-                const toggle = document.getElementById('mobile-toggle');
-                if (sidebar && window.innerWidth <= 1024 &&
-                    sidebar.classList.contains('open') &&
-                    !sidebar.contains(e.target) &&
-                    !toggle.contains(e.target)) {
-                    sidebar.classList.remove('open');
-                }
-            });
-            document.getElementById('profile-avatar').textContent = u.name.charAt(0).toUpperCase();
-            document.getElementById('profile-name').textContent = u.name;
-            document.getElementById('profile-email').textContent = u.email;
-            document.getElementById('profile-since').textContent = Utils.fmtDateShort(u.createdAt);
-            document.getElementById('pstat-total').textContent = stats.total;
-            document.getElementById('pstat-won').textContent = stats.won;
-            document.getElementById('pstat-winrate').textContent = stats.winRate.toFixed(1) + '%';
-
-            // Editable fields
-            document.getElementById('edit-name').value = u.name;
-            document.getElementById('edit-email').value = u.email;
-
-            // Full stats
-            const roi = stats.roi;
-            document.getElementById('full-stats').innerHTML = [
-                { label: '🎯 Total', val: stats.total, color: 'var(--text-primary)' },
-                { label: '⏳ Pendentes', val: stats.pending, color: 'var(--warning)' },
-                { label: '🏆 Ganhas', val: stats.won, color: 'var(--success)' },
-                { label: '💔 Perdidas', val: stats.lost, color: 'var(--danger)' },
-                { label: '↩️ Canceladas', val: stats.cancelled, color: 'var(--text-muted)' },
-                { label: '📈 Win Rate', val: stats.winRate.toFixed(1) + '%', color: stats.winRate >= 50 ? 'var(--success)' : 'var(--danger)' },
-                { label: '💰 Investido', val: Utils.fmt(stats.totalInvested), color: 'var(--text-primary)' },
-                { label: '🏆 Ganho', val: Utils.fmt(stats.totalWon), color: 'var(--success)' },
-                { label: '📊 ROI', val: (roi >= 0 ? '+' : '') + roi.toFixed(1) + '%', color: roi >= 0 ? 'var(--success)' : 'var(--danger)' },
-            ].map(s => `
-      <div style="text-align:center;background:var(--bg-input);border-radius:var(--radius-md);padding:14px;">
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">${s.label}</div>
-        <div style="font-size:17px;font-weight:800;color:${s.color};">${s.val}</div>
-      </div>`).join('');
-
-            // Category breakdown
-            const cats = {};
-            bets.forEach(b => {
-                if (!cats[b.category]) cats[b.category] = { total: 0, won: 0, lost: 0 };
-                cats[b.category].total++;
-                if (b.status === 'won') cats[b.category].won++;
-                if (b.status === 'lost') cats[b.category].lost++;
-            });
-            const catBreakdown = document.getElementById('cat-breakdown');
-            if (Object.keys(cats).length === 0) {
-                catBreakdown.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;font-size:14px;">Nenhuma aposta ainda</div>';
-            } else {
-                catBreakdown.innerHTML = `
-        <table class="data-table">
-          <thead><tr><th>Categoria</th><th>Total</th><th>Ganhas</th><th>Perdidas</th><th>Win Rate</th></tr></thead>
-          <tbody>
-            ${Object.entries(cats).map(([cat, d]) => {
-                    const wr = (d.won + d.lost) > 0 ? ((d.won / (d.won + d.lost)) * 100).toFixed(0) : '-';
-                    return `<tr>
-                <td>${Utils.categoryIcon(cat)} ${cat}</td>
-                <td>${d.total}</td>
-                <td style="color:var(--success);font-weight:600;">${d.won}</td>
-                <td style="color:var(--danger);font-weight:600;">${d.lost}</td>
-                <td><span style="color:${wr >= 50 ? 'var(--success)' : 'var(--danger)'};">${wr !== '-' ? wr + '%' : '-'}</span></td>
-              </tr>`;
-                }).join('')}
-          </tbody>
-        </table>`;
-            }
-
-            // Achievements
-            const achievements = [];
-            if (stats.total >= 1) achievements.push({ icon: '🎯', label: 'Primeira Aposta', desc: 'Fez sua primeira aposta' });
-            if (stats.total >= 10) achievements.push({ icon: '🔟', label: 'Apostador Frequente', desc: '10 apostas realizadas' });
-            if (stats.won >= 1) achievements.push({ icon: '🏆', label: 'Primeiro Ganho', desc: 'Ganhou sua primeira aposta' });
-            if (stats.winRate >= 60 && (stats.won + stats.lost) >= 5) achievements.push({ icon: '📊', label: 'Bom Aproveitamento', desc: 'Taxa de vitória acima de 60%' });
-            if (roi > 0) achievements.push({ icon: '💹', label: 'Lucrativo', desc: 'ROI positivo' });
-            if (stats.total >= 5) achievements.push({ icon: '⭐', label: 'Colecionador de Únicas', desc: '5 apostas únicas registradas' });
-
-            const achEl = document.getElementById('achievements');
-            if (achievements.length === 0) {
-                achEl.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:13px;padding:10px;">Faça apostas para desbloquear conquistas!</div>';
-            } else {
-                achEl.innerHTML = achievements.map(a => `
-        <div style="display:flex;align-items:center;gap:12px;background:var(--bg-input);border-radius:var(--radius-md);padding:10px 12px;">
-          <span style="font-size:22px;">${a.icon}</span>
-          <div><div style="font-size:13px;font-weight:600;">${a.label}</div><div style="font-size:11px;color:var(--text-muted);">${a.desc}</div></div>
-        </div>`).join('');
-            }
+            await loadProfile();
         }
 
-        function saveProfile() {
-            const name = document.getElementById('edit-name').value.trim();
-            const email = document.getElementById('edit-email').value.trim();
-            const errEl = document.getElementById('profile-error');
-            errEl.style.display = 'none';
-            if (!name || name.length < 2) { errEl.textContent = 'Nome deve ter pelo menos 2 caracteres.'; errEl.style.display = 'block'; return; }
-            if (!email || !/\S+@\S+\.\S+/.test(email)) { errEl.textContent = 'E-mail inválido.'; errEl.style.display = 'block'; return; }
-            const existing = DataManager.getUserByEmail(email);
-            if (existing && existing.id !== user.id) { errEl.textContent = 'Este e-mail já está em uso.'; errEl.style.display = 'block'; return; }
-            DataManager.updateUser(user.id, { name, email });
-            Toast.success('✅ Perfil atualizado!', 'Suas informações foram salvas.');
-            loadProfile();
+        async function loadProfile() {
+            const user = await DataManager.getCurrentUser();
+            const stats = await DataManager.getUserStats(user.id);
+
+            // Basic Info
+            document.getElementById('profile-name').textContent = user.name;
+            document.getElementById('profile-email').textContent = user.email;
+            document.getElementById('profile-avatar').textContent = user.name.charAt(0).toUpperCase();
+            document.getElementById('profile-since').textContent = Utils.fmtDateShort(user.created_at);
+
+            document.querySelectorAll('.balance-display').forEach(el => el.textContent = Utils.fmt(user.balance));
+
+            // Stats
+            document.getElementById('stat-total').textContent = stats.total;
+            document.getElementById('stat-won').textContent = stats.won;
+            document.getElementById('stat-lost').textContent = stats.lost;
+            document.getElementById('stat-winrate').textContent = stats.winRate.toFixed(1) + '%';
+            document.getElementById('stat-roi').textContent = (stats.roi >= 0 ? '+' : '') + stats.roi.toFixed(1) + '%';
         }
 
-        function changePassword() {
-            const cur = document.getElementById('cur-pass').value;
-            const next = document.getElementById('new-pass').value;
-            const errEl = document.getElementById('pass-error');
-            errEl.style.display = 'none';
-            const u = DataManager.getUserById(user.id);
-            if (u.password !== cur) { errEl.textContent = 'Senha atual incorreta.'; errEl.style.display = 'block'; return; }
-            if (!next || next.length < 6) { errEl.textContent = 'Nova senha deve ter pelo menos 6 caracteres.'; errEl.style.display = 'block'; return; }
-            DataManager.updateUser(user.id, { password: next });
-            document.getElementById('cur-pass').value = '';
-            document.getElementById('new-pass').value = '';
-            Toast.success('🔒 Senha alterada!', 'Sua senha foi atualizada com sucesso.');
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
         }
 
-        function confirmReset() {
-            if (confirm('⚠️ TEM CERTEZA?\n\nTodos os seus dados (apostas, transações, saldo) serão apagados permanentemente.\n\nEsta ação é irreversível!')) {
-                const userId = user.id;
-                // Clear bets
-                const allBets = DataManager.getBets().filter(b => b.userId !== userId);
-                DataManager.saveBets(allBets);
-                // Clear transactions
-                const allTxs = DataManager.getTransactions().filter(t => t.userId !== userId);
-                localStorage.setItem('betmgr_transactions', JSON.stringify(allTxs));
-                // Reset balance
-                DataManager.updateUser(userId, { balance: 1000 });
-                Toast.warning('🗑️ Dados resetados', 'Todos os seus dados foram apagados. Saldo restaurado para R$ 1.000,00.');
-                setTimeout(() => loadProfile(), 500);
-            }
+        function doLogout() {
+            DataManager.logout();
+            window.location.href = '/';
         }
 
-        loadProfile();
+        init();
     </script>
 </body>
 

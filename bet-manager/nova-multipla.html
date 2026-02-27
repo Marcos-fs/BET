@@ -417,12 +417,19 @@
         </nav>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/data.js"></script>
     <script>
-        const user = Auth.requireAuth();
-        if (!user) throw new Error();
-        document.getElementById('sidebar-name').textContent = user.name;
-        document.getElementById('sidebar-avatar').textContent = user.name.charAt(0).toUpperCase();
+        let user;
+        async function init() {
+            user = await Auth.requireAuth();
+            if (!user) return;
+
+            document.getElementById('sidebar-name').textContent = user.name;
+            document.getElementById('sidebar-avatar').textContent = user.name.charAt(0).toUpperCase();
+
+            await loadBalance();
+        }
 
         function toggleSidebar() {
             const sb = document.querySelector('.sidebar');
@@ -446,8 +453,8 @@
 
         const CATEGORIES = ['Futebol', 'Basquete', 'Tênis', 'E-Sports', 'Fórmula 1', 'Vôlei', 'MMA', 'Ciclismo', 'Baseball', 'Outro'];
 
-        function loadBalance() {
-            const u = DataManager.getUserById(user.id);
+        async function loadBalance() {
+            const u = await DataManager.getCurrentUser();
             currentBalance = u.balance;
             document.querySelectorAll('.balance-display').forEach(el => el.textContent = Utils.fmt(u.balance));
             document.getElementById('balance-display-side').textContent = Utils.fmt(u.balance);
@@ -579,7 +586,7 @@
             updateSummary();
         }
 
-        function submitMultiple() {
+        async function submitMultiple() {
             const title = document.getElementById('bet-title').value.trim();
             const amount = parseFloat(document.getElementById('bet-amount').value);
             const notes = document.getElementById('bet-notes').value.trim();
@@ -602,21 +609,33 @@
             btn.disabled = true;
             btn.textContent = '⏳ Registrando...';
 
-            setTimeout(() => {
-                const bet = DataManager.createMultipleBet(user.id, { title, amount, selections: sels, notes });
-                const totalOdds = bet.odds;
-                Toast.success('📋 Aposta múltipla registrada!', `${sels.length} seleções · Odd total: ${totalOdds}x · ${Utils.fmt(amount)} apostados`);
+            const totalOdds = sels.reduce((acc, s) => acc * s.odds, 1);
+            const result = await DataManager.createBet(user.id, {
+                title,
+                amount,
+                selections: sels,
+                notes,
+                type: 'multiple',
+                odds: parseFloat(totalOdds.toFixed(2)),
+                category: sels[0].category // Use first selection category as main
+            });
+
+            if (result) {
+                Toast.success('📋 Aposta múltipla registrada!', `${sels.length} seleções · Odd total: ${totalOdds.toFixed(2)}x · ${Utils.fmt(amount)} apostados`);
                 resetForm();
-                loadBalance();
-                btn.disabled = false;
-                btn.textContent = '📋 Registrar Aposta Múltipla';
-            }, 600);
+                await loadBalance();
+            } else {
+                Toast.error('❌ Erro ao salvar aposta múltipla.');
+            }
+
+            btn.disabled = false;
+            btn.textContent = '📋 Registrar Aposta Múltipla';
         }
 
         // Initialize with 2 selections
         addSelection();
         addSelection();
-        loadBalance();
+        init();
     </script>
 </body>
 

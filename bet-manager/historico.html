@@ -163,12 +163,18 @@
         </nav>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/data.js"></script>
     <script>
-        const user = Auth.requireAuth();
-        if (!user) throw new Error();
-        document.getElementById('sidebar-name').textContent = user.name;
-        document.getElementById('sidebar-avatar').textContent = user.name.charAt(0).toUpperCase();
+        async function init() {
+            const userCheck = await Auth.requireAuth();
+            if (!userCheck) return;
+
+            document.getElementById('sidebar-name').textContent = userCheck.name;
+            document.getElementById('sidebar-avatar').textContent = userCheck.name.charAt(0).toUpperCase();
+
+            await loadHistory();
+        }
 
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
@@ -188,11 +194,12 @@
 
         let allBets = [];
 
-        function loadHistory() {
-            const u = DataManager.getUserById(user.id);
+        async function loadHistory() {
+            const u = await DataManager.getCurrentUser();
             document.querySelectorAll('.balance-display').forEach(el => el.textContent = Utils.fmt(u.balance));
-            allBets = DataManager.getUserBets(user.id).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            const stats = DataManager.getUserStats(user.id);
+            allBets = await DataManager.getUserBets(u.id);
+            allBets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            const stats = await DataManager.getUserStats(u.id);
 
             document.getElementById('hist-stats').innerHTML = `
       <div class="stat-card primary"><div class="stat-icon primary">🎯</div><div class="stat-content"><div class="stat-label">Total Apostas</div><div class="stat-value">${stats.total}</div></div></div>
@@ -250,7 +257,7 @@
                     : Utils.categoryIcon(b.category) + ' ' + b.category;
                 return `
       <tr>
-        <td>${Utils.typeBadge(b.type)}</td>
+        <td>${b.type === 'multiple' ? '<span class="badge badge-primary">Múltipla</span>' : '<span class="badge badge-accent">Única</span>'}</td>
         <td>
           <div style="font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis;">${b.title}</div>
           ${b.event ? `<div style="font-size:11px;color:var(--text-muted);">${b.event}</div>` : ''}
@@ -268,7 +275,7 @@
             }).join('');
         }
 
-        loadHistory();
+        init();
     </script>
 </body>
 
