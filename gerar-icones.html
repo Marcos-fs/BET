@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Generate Icons</title>
+</head>
+
+<body>
+    <canvas id="c"></canvas>
+    <script>
+        // Generates all icon sizes as downloadable PNGs
+        const sizes = [72, 96, 128, 144, 192, 512];
+        const canvas = document.getElementById('c');
+        const ctx = canvas.getContext('2d');
+
+        sizes.forEach(size => {
+            canvas.width = size;
+            canvas.height = size;
+
+            // Background gradient
+            const grad = ctx.createLinearGradient(0, 0, size, size);
+            grad.addColorStop(0, '#6c63ff');
+            grad.addColorStop(1, '#00d4aa');
+            ctx.fillStyle = grad;
+
+            // Rounded rectangle
+            const radius = size * 0.22;
+            ctx.beginPath();
+            ctx.moveTo(radius, 0);
+            ctx.lineTo(size - radius, 0);
+            ctx.quadraticCurveTo(size, 0, size, radius);
+            ctx.lineTo(size, size - radius);
+            ctx.quadraticCurveTo(size, size, size - radius, size);
+            ctx.lineTo(radius, size);
+            ctx.quadraticCurveTo(0, size, 0, size - radius);
+            ctx.lineTo(0, radius);
+            ctx.quadraticCurveTo(0, 0, radius, 0);
+            ctx.closePath();
+            ctx.fill();
+
+            // Target emoji / dart icon
+            ctx.fillStyle = 'rgba(255,255,255,0.15)';
+            ctx.beginPath();
+            ctx.arc(size / 2, size / 2, size * 0.38, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = 'rgba(255,255,255,0.25)';
+            ctx.beginPath();
+            ctx.arc(size / 2, size / 2, size * 0.24, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(size / 2, size / 2, size * 0.12, 0, Math.PI * 2);
+            ctx.fill();
+
+            // "B" letter
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.32}px Arial, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('B', size / 2, size / 2);
+
+            // Download
+            const link = document.createElement('a');
+            link.download = `icon-${size}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.textContent = `Download icon-${size}.png`;
+            link.style.display = 'block';
+            link.style.margin = '8px';
+            link.style.padding = '8px 16px';
+            link.style.background = '#6c63ff';
+            link.style.color = 'white';
+            link.style.borderRadius = '6px';
+            link.style.textDecoration = 'none';
+            link.style.fontFamily = 'sans-serif';
+            document.body.appendChild(link);
+            link.click(); // auto-download
+        });
+
+        document.body.innerHTML += '<p style="font-family:sans-serif;color:#333;margin:16px;">✅ Ícones gerados! Mova os arquivos para a pasta <strong>icons/</strong> do projeto.</p>';
+    </script>
+</body>
+
+</html>

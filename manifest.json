@@ -1,0 +1,91 @@
+{
+    "name": "BetManager",
+    "short_name": "BetManager",
+    "description": "Gerencie suas apostas únicas e múltiplas com facilidade",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0a0b1a",
+    "theme_color": "#6c63ff",
+    "orientation": "portrait-primary",
+    "lang": "pt-BR",
+    "icons": [
+        {
+            "src": "icons/icon-72.png",
+            "sizes": "72x72",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-96.png",
+            "sizes": "96x96",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-128.png",
+            "sizes": "128x128",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-144.png",
+            "sizes": "144x144",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "finance",
+        "sports"
+    ],
+    "shortcuts": [
+        {
+            "name": "Nova Aposta Única",
+            "short_name": "Única",
+            "description": "Criar uma nova aposta única",
+            "url": "/nova-aposta",
+            "icons": [
+                {
+                    "src": "icons/icon-96.png",
+                    "sizes": "96x96"
+                }
+            ]
+        },
+        {
+            "name": "Nova Aposta Múltipla",
+            "short_name": "Múltipla",
+            "description": "Criar um acumulador",
+            "url": "/nova-multipla",
+            "icons": [
+                {
+                    "src": "icons/icon-96.png",
+                    "sizes": "96x96"
+                }
+            ]
+        },
+        {
+            "name": "Dashboard",
+            "short_name": "Dashboard",
+            "description": "Ver estatísticas",
+            "url": "/dashboard",
+            "icons": [
+                {
+                    "src": "icons/icon-96.png",
+                    "sizes": "96x96"
+                }
+            ]
+        }
+    ]
+}

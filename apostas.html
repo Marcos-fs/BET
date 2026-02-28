@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#6c63ff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="BetManager" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <title>BetManager – Minhas Apostas</title>
+    <link rel="stylesheet" href="styles/main.css" />
+    <style>
+        .bets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 18px;
+        }
+
+        .bet-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .resolve-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">🎯</div><span class="sidebar-logo-text">BetManager</span>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Principal</div>
+                <a href="dashboard" class="nav-item"><span class="nav-item-icon">🏠</span> Dashboard</a>
+                <a href="nova-aposta" class="nav-item"><span class="nav-item-icon">⭐</span> Aposta Única</a>
+                <a href="nova-multipla" class="nav-item"><span class="nav-item-icon">📋</span> Aposta Múltipla</a>
+                <a href="apostas" class="nav-item active"><span class="nav-item-icon">🎯</span> Minhas Apostas</a>
+                <div class="nav-section-label">Histórico & Finanças</div>
+                <a href="historico" class="nav-item"><span class="nav-item-icon">📜</span> Histórico</a>
+                <a href="carteira" class="nav-item"><span class="nav-item-icon">💰</span> Carteira</a>
+                <div class="nav-section-label">Conta</div>
+                <a href="perfil" class="nav-item"><span class="nav-item-icon">👤</span> Perfil</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="window.location.href='perfil'">
+                    <div class="user-avatar" id="sidebar-avatar">?</div>
+                    <div class="user-details">
+                        <div class="user-name" id="sidebar-name">...</div>
+                        <div class="user-role">Apostador</div>
+                    </div>
+                </div>
+                <button onclick="DataManager.logout();window.location.href='/';"
+                    style="width:100%;margin-top:8px;padding:8px;color:var(--text-muted);background:none;border:none;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:var(--radius-md);cursor:pointer;font-size:13px;font-weight:600;transition:var(--transition);"
+                    onmouseover="this.style.background='rgba(255,71,87,0.1)';this.style.color='var(--danger)'"
+                    onmouseout="this.style.background='';this.style.color='var(--text-muted)'">
+                    <span>🚪</span> Sair
+                </button>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <div class="topbar">
+                <button class="menu-toggle" id="mobile-toggle" onclick="toggleSidebar()">
+                    <span>☰</span>
+                </button>
+                <div class="topbar-title">
+                    <h1>Minhas Apostas</h1>
+                    <p>Acompanhe seus palpites em tempo real</p>
+                </div>
+                <div class="topbar-spacer"></div>
+                <div class="topbar-balance"><span class="topbar-balance-label">💰 Saldo</span><span
+                        class="topbar-balance-val balance-display">R$ 0,00</span></div>
+                <a href="nova-aposta" class="btn btn-primary btn-sm">⭐ Aposta Única</a>
+                <a href="nova-multipla" class="btn btn-accent btn-sm">📋 Múltipla</a>
+            </div>
+
+            <div class="page-content">
+                <!-- Filters -->
+                <div class="filters-bar">
+                    <div class="search-input-wrap">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" placeholder="Buscar aposta..." id="search-input" oninput="filterBets()" />
+                    </div>
+                    <select class="filter-select" id="status-filter" onchange="filterBets()">
+                        <option value="">Todos os status</option>
+                        <option value="pending">Pendente</option>
+                        <option value="won">Ganhou</option>
+                        <option value="lost">Perdeu</option>
+                        <option value="cancelled">Cancelada</option>
+                    </select>
+                    <select class="filter-select" id="cat-filter" onchange="filterBets()">
+                        <option value="">Todas as categorias</option>
+                        <option>Futebol</option>
+                        <option>Basquete</option>
+                        <option>Tênis</option>
+                        <option>E-Sports</option>
+                        <option>Fórmula 1</option>
+                        <option>Vôlei</option>
+                        <option>MMA</option>
+                        <option>Ciclismo</option>
+                        <option>Baseball</option>
+                        <option>Outro</option>
+                    </select>
+                    <select class="filter-select" id="sort-filter" onchange="filterBets()">
+                        <option value="newest">Mais recentes</option>
+                        <option value="oldest">Mais antigas</option>
+                        <option value="amount-high">Maior valor</option>
+                        <option value="amount-low">Menor valor</option>
+                        <option value="odds-high">Maior odd</option>
+                    </select>
+                    <div style="margin-left:auto;font-size:13px;color:var(--text-muted);" id="count-label"></div>
+                </div>
+
+                <div class="bets-grid" id="bets-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESOLVE MODAL -->
+    <div class="modal-overlay" id="resolve-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">⚖️ Resolver Aposta</div>
+                <button class="modal-close" onclick="closeModal('resolve-modal')">✕</button>
+            </div>
+            <div style="margin-bottom:20px;">
+                <div style="font-size:15px;font-weight:600;margin-bottom:4px;" id="resolve-bet-title"></div>
+                <div style="font-size:13px;color:var(--text-secondary);" id="resolve-bet-info"></div>
+            </div>
+            <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Qual foi o resultado desta aposta?
+            </div>
+            <div style="display:flex;gap:12px;margin-bottom:24px;">
+                <button class="btn btn-success btn-full btn-lg" onclick="resolveCurrentBet('won')">🏆 Ganhou</button>
+                <button class="btn btn-danger btn-full btn-lg" onclick="resolveCurrentBet('lost')">💔 Perdeu</button>
+            </div>
+            <button class="btn btn-outline btn-full" onclick="closeModal('resolve-modal')">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- CANCEL MODAL -->
+    <div class="modal-overlay" id="cancel-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">❌ Cancelar Aposta</div>
+                <button class="modal-close" onclick="closeModal('cancel-modal')">✕</button>
+            </div>
+            <p style="color:var(--text-secondary);margin-bottom:20px;">Tem certeza que deseja cancelar a aposta <strong
+                    id="cancel-bet-title"></strong>? O valor apostado será reembolsado.</p>
+            <div style="display:flex;gap:12px;">
+                <button class="btn btn-danger btn-full" onclick="cancelCurrentBet()">Sim, cancelar</button>
+                <button class="btn btn-outline btn-full" onclick="closeModal('cancel-modal')">Não</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/data.js"></script>
+    <script>
+        async function init() {
+            const userCheck = await Auth.requireAuth();
+            if (!userCheck) return;
+
+            document.getElementById('sidebar-name').textContent = userCheck.name;
+            document.getElementById('sidebar-avatar').textContent = userCheck.name.charAt(0).toUpperCase();
+
+            await loadBets();
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('mobile-toggle');
+            if (window.innerWidth <= 1024 &&
+                sidebar.classList.contains('open') &&
+                !sidebar.contains(e.target) &&
+                !toggle.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        let currentBetId = null;
+        let allBets = [];
+
+        async function loadBets() {
+            const user = await DataManager.getCurrentUser();
+            document.querySelectorAll('.balance-display').forEach(el => el.textContent = Utils.fmt(user.balance));
+            allBets = await DataManager.getUserBets(user.id);
+            filterBets();
+        }
+
+        function filterBets() {
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const status = document.getElementById('status-filter').value;
+            const cat = document.getElementById('cat-filter').value;
+            const sort = document.getElementById('sort-filter').value;
+
+            let filtered = allBets.filter(b => {
+                const sText = b.type === 'multiple'
+                    ? (b.selections || []).map(s => s.title + ' ' + s.selection).join(' ')
+                    : (b.selection || '') + ' ' + (b.category || '') + ' ' + (b.event || '');
+                if (search && !b.title.toLowerCase().includes(search) && !sText.toLowerCase().includes(search)) return false;
+                if (status && b.status !== status) return false;
+                if (cat && b.category !== cat && b.type !== 'multiple') return false;
+                return true;
+            });
+
+            if (sort === 'newest') filtered.sort((a, b) => new Date(b.created_at || b.createdAt) - new Date(a.created_at || a.createdAt));
+            else if (sort === 'oldest') filtered.sort((a, b) => new Date(a.created_at || a.createdAt) - new Date(b.created_at || b.createdAt));
+            else if (sort === 'amount-high') filtered.sort((a, b) => b.amount - a.amount);
+            else if (sort === 'amount-low') filtered.sort((a, b) => a.amount - b.amount);
+            else if (sort === 'odds-high') filtered.sort((a, b) => b.odds - a.odds);
+
+            renderBets(filtered);
+            document.getElementById('count-label').textContent = `${filtered.length} aposta${filtered.length !== 1 ? 's' : ''}`;
+        }
+
+        function renderBets(bets) {
+            const grid = document.getElementById('bets-grid');
+            if (bets.length === 0) {
+                grid.innerHTML = `<div class="card" style="grid-column:1/-1;"><div class="empty-state"><div class="empty-state-icon">🎯</div><h3>Nenhuma aposta encontrada</h3><p>Tente mudar os filtros ou crie uma nova aposta</p><a href="nova-aposta.html" class="btn btn-primary" style="margin-top:16px;">➕ Nova Aposta</a></div></div>`;
+                return;
+            }
+            grid.innerHTML = bets.map(b => {
+                const potential = (b.amount * b.odds).toFixed(2);
+                const isPending = b.status === 'pending';
+                const isMultiple = b.type === 'multiple';
+                const typeBadgeHtml = isMultiple ? '<span class="badge badge-primary">📋 Múltipla</span>' : '<span class="badge badge-accent">⭐ Única</span>';
+                const bodyHtml = isMultiple
+                    ? `<div style="margin-bottom:10px;">${(b.selections || []).map((s, i) => `
+                        <div style="display:flex;align-items:baseline;gap:6px;font-size:12px;margin-bottom:4px;">
+                          <span style="background:var(--primary);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:var(--radius-full);flex-shrink:0;">${i + 1}</span>
+                          <span style="color:var(--text-secondary);flex:1;">${s.title}</span>
+                          <span style="color:var(--primary-light);font-weight:700;flex-shrink:0;">${parseFloat(s.odds).toFixed(2)}x</span>
+                        </div>`).join('')}
+                      </div>`
+                    : `<div class="bet-card-meta">
+                        <span class="bet-meta-item">🏁 ${b.selection}</span>
+                        <span class="bet-meta-item">📅 ${Utils.fmtDateShort(b.created_at || b.createdAt)}</span>
+                      </div>
+                      ${b.event ? `<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">🏆 ${b.event}</div>` : ''}`;
+                return `
+        <div class="bet-card" id="bet-${b.id}">
+          <div class="resolve-badge">${Utils.statusBadge(b.status)}</div>
+          <div style="margin-bottom:8px;">${typeBadgeHtml}</div>
+          <div class="bet-category">${isMultiple ? '📋 ' + (b.selections || []).length + ' seleções' : Utils.categoryIcon(b.category) + ' ' + b.category}</div>
+          <div class="bet-title" style="margin-bottom:8px;padding-right:80px;">${b.title}</div>
+          ${bodyHtml}
+          ${b.notes ? `<div style="font-size:12px;color:var(--text-secondary);background:var(--bg-input);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:12px;">"${b.notes}"</div>` : ''}
+          <div class="bet-card-footer">
+            <div class="bet-amount-info">
+              <div class="bet-amount-label">Valor apostado</div>
+              <div class="bet-amount-val">${Utils.fmt(b.amount)}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+              <span class="bet-odds-pill">${b.odds}x</span>
+              <span style="font-size:11px;color:var(--${isPending ? 'accent' : 'text-muted'});">${isPending ? '🏆 ' + Utils.fmt(potential) : Utils.fmt(potential)}</span>
+            </div>
+          </div>
+          ${isPending ? `
+          <div class="bet-actions">
+            <button class="btn btn-success btn-sm" style="flex:1;" onclick="openResolve('${b.id}')">⚖️ Resolver</button>
+            <button class="btn btn-outline btn-sm btn-icon" title="Cancelar aposta" onclick="openCancel('${b.id}')">✕</button>
+          </div>` : ''}
+        </div>`;
+            }).join('');
+        }
+
+        function openResolve(id) {
+            const bet = allBets.find(b => b.id === id);
+            if (!bet) return;
+            currentBetId = id;
+            document.getElementById('resolve-bet-title').textContent = bet.title;
+            document.getElementById('resolve-bet-info').textContent = `${Utils.fmt(bet.amount)} · Odd ${bet.odds}x · Retorno: ${Utils.fmt(bet.amount * bet.odds)}`;
+            document.getElementById('resolve-modal').classList.add('open');
+        }
+
+        function openCancel(id) {
+            const bet = allBets.find(b => b.id === id);
+            if (!bet) return;
+            currentBetId = id;
+            document.getElementById('cancel-bet-title').textContent = bet.title;
+            document.getElementById('cancel-modal').classList.add('open');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('open');
+            currentBetId = null;
+        }
+
+        async function resolveCurrentBet(result) {
+            if (!currentBetId) return;
+            const user = await DataManager.getCurrentUser();
+            await DataManager.resolveBet(user.id, currentBetId, result);
+            closeModal('resolve-modal');
+            Toast[result === 'won' ? 'success' : 'error'](
+                result === 'won' ? '🏆 Parabéns! Aposta ganha!' : '💔 Aposta marcada como perdida',
+                result === 'won' ? 'Seus ganhos foram creditados na carteira.' : 'Melhor sorte na próxima!'
+            );
+            await loadBets();
+        }
+
+        async function cancelCurrentBet() {
+            if (!currentBetId) return;
+            const user = await DataManager.getCurrentUser();
+            await DataManager.cancelBet(user.id, currentBetId);
+            closeModal('cancel-modal');
+            Toast.info('↩️ Aposta cancelada', 'O valor foi reembolsado para sua carteira.');
+            await loadBets();
+        }
+
+        // Close on backdrop click
+        document.querySelectorAll('.modal-overlay').forEach(el => {
+            el.addEventListener('click', e => { if (e.target === el) closeModal(el.id); });
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

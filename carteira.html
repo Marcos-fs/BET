@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#6c63ff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="BetManager" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <title>BetManager – Carteira</title>
+    <link rel="stylesheet" href="styles/main.css" />
+</head>
+
+<body>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">🎯</div><span class="sidebar-logo-text">BetManager</span>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Principal</div>
+                <a href="dashboard" class="nav-item"><span class="nav-item-icon">🏠</span> Dashboard</a>
+                <a href="nova-aposta" class="nav-item"><span class="nav-item-icon">⭐</span> Aposta Única</a>
+                <a href="nova-multipla" class="nav-item"><span class="nav-item-icon">📋</span> Aposta Múltipla</a>
+                <a href="apostas" class="nav-item"><span class="nav-item-icon">🎯</span> Minhas Apostas</a>
+                <div class="nav-section-label">Histórico & Finanças</div>
+                <a href="historico" class="nav-item"><span class="nav-item-icon">📜</span> Histórico</a>
+                <a href="carteira" class="nav-item active"><span class="nav-item-icon">💰</span> Carteira</a>
+                <div class="nav-section-label">Conta</div>
+                <a href="perfil" class="nav-item"><span class="nav-item-icon">👤</span> Perfil</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="window.location.href='perfil'">
+                    <div class="user-avatar" id="sidebar-avatar">?</div>
+                    <div class="user-details">
+                        <div class="user-name" id="sidebar-name">...</div>
+                        <div class="user-role">Apostador</div>
+                    </div>
+                </div>
+                <button onclick="DataManager.logout();window.location.href='/';"
+                    style="width:100%;margin-top:8px;padding:8px;color:var(--text-muted);background:none;border:none;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:var(--radius-md);cursor:pointer;font-size:13px;font-weight:600;transition:var(--transition);"
+                    onmouseover="this.style.background='rgba(255,71,87,0.1)';this.style.color='var(--danger)'"
+                    onmouseout="this.style.background='';this.style.color='var(--text-muted)'">
+                    <span>🚪</span> Sair
+                </button>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <div class="topbar">
+                <button class="menu-toggle" id="mobile-toggle" onclick="toggleSidebar()">
+                    <span>☰</span>
+                </button>
+                <div class="topbar-title">
+                    <h1>Carteira</h1>
+                    <p>Gerencie seus fundos</p>
+                </div>
+                <div class="topbar-spacer"></div>
+                <div class="topbar-action">
+                    <button class="btn btn-success btn-sm" onclick="openModal('deposit-modal')">💰 Depositar</button>
+                    <button class="btn btn-outline btn-sm" onclick="openModal('withdraw-modal')">💸 Sacar</button>
+                </div>
+            </div>
+
+            <div class="page-content">
+                <!-- Wallet Hero -->
+                <div class="grid-2" style="margin-bottom:22px;">
+                    <div class="wallet-card">
+                        <div class="wallet-label">Saldo Disponível</div>
+                        <div class="wallet-amount balance-display" id="wallet-balance">R$ 0,00</div>
+                        <div style="display:flex;gap:12px;position:relative;z-index:1;">
+                            <button class="btn btn-sm" onclick="openModal('deposit-modal')"
+                                style="background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.3);">💰
+                                Depositar</button>
+                            <button class="btn btn-sm" onclick="openModal('withdraw-modal')"
+                                style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.25);">💸
+                                Sacar</button>
+                        </div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:14px;">
+                        <div class="stat-card success" style="flex:1;">
+                            <div class="stat-icon success">📈</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Total Depositado</div>
+                                <div class="stat-value" style="font-size:20px;" id="total-deposited">R$ 0</div>
+                            </div>
+                        </div>
+                        <div class="stat-card danger" style="flex:1;">
+                            <div class="stat-icon danger">📉</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Total Sacado</div>
+                                <div class="stat-value" style="font-size:20px;" id="total-withdrawn">R$ 0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transactions -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">📋 Extrato</div>
+                            <div class="card-subtitle">Histórico completo de movimentações</div>
+                        </div>
+                        <select class="filter-select" id="tx-filter" onchange="loadTransactions()">
+                            <option value="">Todas</option>
+                            <option value="deposit">Depósitos</option>
+                            <option value="withdraw">Saques</option>
+                            <option value="bet">Apostas</option>
+                            <option value="win">Ganhos</option>
+                            <option value="refund">Reembolsos</option>
+                        </select>
+                    </div>
+                    <div id="tx-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW: Bottom Nav for Mobile -->
+        <nav class="mobile-nav">
+            <a href="dashboard" class="mobile-nav-item">
+                <span>🏠</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="nova-aposta" class="mobile-nav-item">
+                <span>⭐</span>
+                <span>Única</span>
+            </a>
+            <a href="nova-multipla" class="mobile-nav-item">
+                <span>📋</span>
+                <span>Múltipla</span>
+            </a>
+            <a href="apostas" class="mobile-nav-item">
+                <span>🎯</span>
+                <span>Apostas</span>
+            </a>
+            <a href="perfil" class="mobile-nav-item">
+                <span>👤</span>
+                <span>Perfil</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- DEPOSIT MODAL -->
+    <div class="modal-overlay" id="deposit-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">💰 Depositar</div>
+                <button class="modal-close" onclick="closeModal('deposit-modal')">✕</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Valor do Depósito</label>
+                <div class="input-group">
+                    <span class="input-icon" style="font-size:14px;font-weight:700;">R$</span>
+                    <input type="number" class="form-control" id="deposit-amount" placeholder="0,00" min="1"
+                        step="0.01" />
+                </div>
+                <div class="quick-amounts" style="margin-top:10px;">
+                    <button class="quick-amount-btn"
+                        onclick="document.getElementById('deposit-amount').value=50">R$50</button>
+                    <button class="quick-amount-btn"
+                        onclick="document.getElementById('deposit-amount').value=100">R$100</button>
+                    <button class="quick-amount-btn"
+                        onclick="document.getElementById('deposit-amount').value=250">R$250</button>
+                    <button class="quick-amount-btn"
+                        onclick="document.getElementById('deposit-amount').value=500">R$500</button>
+                    <button class="quick-amount-btn"
+                        onclick="document.getElementById('deposit-amount').value=1000">R$1.000</button>
+                </div>
+            </div>
+            <div id="deposit-error" style="color:var(--danger);font-size:13px;margin-bottom:12px;display:none;"></div>
+            <button class="btn btn-success btn-full btn-lg" onclick="doDeposit()">💰 Confirmar Depósito</button>
+        </div>
+    </div>
+
+    <!-- WITHDRAW MODAL -->
+    <div class="modal-overlay" id="withdraw-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">💸 Sacar</div>
+                <button class="modal-close" onclick="closeModal('withdraw-modal')">✕</button>
+            </div>
+            <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Saldo disponível: <strong
+                    class="balance-display" style="color:var(--accent);">R$ 0,00</strong></div>
+            <div class="form-group">
+                <label class="form-label">Valor do Saque</label>
+                <div class="input-group">
+                    <span class="input-icon" style="font-size:14px;font-weight:700;">R$</span>
+                    <input type="number" class="form-control" id="withdraw-amount" placeholder="0,00" min="1"
+                        step="0.01" />
+                </div>
+            </div>
+            <div id="withdraw-error" style="color:var(--danger);font-size:13px;margin-bottom:12px;display:none;"></div>
+            <button class="btn btn-danger btn-full btn-lg" onclick="doWithdraw()">💸 Confirmar Saque</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/data.js"></script>
+    <script>
+        async function init() {
+            const userCheck = await Auth.requireAuth();
+            if (!userCheck) return;
+
+            document.getElementById('sidebar-name').textContent = userCheck.name;
+            document.getElementById('sidebar-avatar').textContent = userCheck.name.charAt(0).toUpperCase();
+
+            await loadPage();
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('mobile-toggle');
+            if (sidebar && window.innerWidth <= 1024 &&
+                sidebar.classList.contains('open') &&
+                !sidebar.contains(e.target) &&
+                !toggle.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        async function loadPage() {
+            const u = await DataManager.getCurrentUser();
+            document.querySelectorAll('.balance-display').forEach(el => el.textContent = Utils.fmt(u.balance));
+
+            const txs = await DataManager.getTransactions(u.id);
+            const totalDep = txs.filter(t => t.type === 'deposit').reduce((s, t) => s + parseFloat(t.amount || 0), 0);
+            const totalWit = txs.filter(t => t.type === 'withdraw').reduce((s, t) => s + Math.abs(parseFloat(t.amount || 0)), 0);
+            document.getElementById('total-deposited').textContent = Utils.fmt(totalDep);
+            document.getElementById('total-withdrawn').textContent = Utils.fmt(totalWit);
+            await loadTransactions();
+        }
+
+        async function loadTransactions() {
+            const filter = document.getElementById('tx-filter').value;
+            const u = await DataManager.getCurrentUser();
+            let txs = await DataManager.getTransactions(u.id);
+            if (filter) txs = txs.filter(t => t.type === filter);
+            const el = document.getElementById('tx-list');
+            if (txs.length === 0) {
+                el.innerHTML = '<div class="empty-state" style="padding:40px 0;"><div class="empty-state-icon">💳</div><h3>Nenhuma transação</h3></div>';
+                return;
+            }
+            const typeLabels = { deposit: 'Depósito', withdraw: 'Saque', bet: 'Aposta', win: 'Ganho', refund: 'Reembolso' };
+            el.innerHTML = txs.map(t => {
+                const amt = parseFloat(t.amount);
+                const isPositive = amt > 0;
+                const icon = Utils.txIcon(t.type);
+                return `
+        <div class="transaction-item">
+          <div class="transaction-icon" style="background:rgba(${isPositive ? '46,213,115' : '255,71,87'},0.1);">${icon}</div>
+          <div class="transaction-info">
+            <div class="transaction-title">${t.description}</div>
+            <div class="transaction-date">${Utils.fmtDate(t.created_at || t.date || t.createdAt)} · <span style="color:var(--text-muted);font-size:11px;text-transform:uppercase;">${typeLabels[t.type] || t.type}</span></div>
+          </div>
+          <div class="transaction-amount ${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}${Utils.fmt(amt)}</div>
+        </div>`;
+            }).join('');
+        }
+
+        function openModal(id) { document.getElementById(id).classList.add('open'); }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('open');
+            document.getElementById('deposit-error').style.display = 'none';
+            document.getElementById('withdraw-error').style.display = 'none';
+        }
+
+        async function doDeposit() {
+            const amount = parseFloat(document.getElementById('deposit-amount').value);
+            const errEl = document.getElementById('deposit-error');
+            if (!amount || amount <= 0) { errEl.textContent = 'Valor inválido.'; errEl.style.display = 'block'; return; }
+
+            const btn = document.querySelector('#deposit-modal .btn-success');
+            btn.disabled = true; btn.textContent = 'Processando...';
+
+            const user = await DataManager.getCurrentUser();
+            await DataManager.deposit(user.id, amount);
+
+            closeModal('deposit-modal');
+            document.getElementById('deposit-amount').value = '';
+            Toast.success('💰 Depósito realizado!', `${Utils.fmt(amount)} adicionados à sua carteira.`);
+            btn.disabled = false; btn.textContent = '💰 Confirmar Depósito';
+            await loadPage();
+        }
+
+        async function doWithdraw() {
+            const amount = parseFloat(document.getElementById('withdraw-amount').value);
+            const u = await DataManager.getCurrentUser();
+            const errEl = document.getElementById('withdraw-error');
+            if (!amount || amount <= 0) { errEl.textContent = 'Valor inválido.'; errEl.style.display = 'block'; return; }
+            if (amount > u.balance) { errEl.textContent = `Saldo insuficiente.`; errEl.style.display = 'block'; return; }
+
+            const btn = document.querySelector('#withdraw-modal .btn-danger');
+            btn.disabled = true; btn.textContent = 'Processando...';
+
+            await DataManager.withdraw(u.id, amount);
+
+            closeModal('withdraw-modal');
+            document.getElementById('withdraw-amount').value = '';
+            Toast.info('💸 Saque realizado!', `${Utils.fmt(amount)} removidos da sua carteira.`);
+            btn.disabled = false; btn.textContent = '💸 Confirmar Saque';
+            await loadPage();
+        }
+
+        document.querySelectorAll('.modal-overlay').forEach(el => {
+            el.addEventListener('click', e => { if (e.target === el) closeModal(el.id); });
+        });
+
+        init();
+    </script>
+</body>
+
+</html>
