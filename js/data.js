@@ -64,8 +64,9 @@ const DataManager = {
             .single();
 
         if (error) {
+            console.error('Registration error detail:', error);
             if (error.code === '23505') return { error: 'Este e-mail já está cadastrado.' };
-            return { error: 'Erro ao criar conta.' };
+            return { error: 'Erro ao criar conta: ' + (error.message || 'Erro no servidor.') };
         }
         this.setCurrentUser(data);
         return { user: data };
@@ -126,8 +127,21 @@ const DataManager = {
             return null;
         }
 
-        // Background sync
-        this.getCurrentUser(true);
+        if (bet) {
+            // Processing balance and transaction in JS
+            await Promise.all([
+                this.updateBalance(userId, -betData.amount),
+                this.addTransaction(userId, {
+                    type: 'bet',
+                    description: `Aposta: ${betData.title}`,
+                    amount: -betData.amount,
+                    bet_id: bet.id
+                })
+            ]);
+
+            // Final refresh to be sure
+            await this.getCurrentUser(true);
+        }
 
         return bet;
     },
@@ -140,8 +154,20 @@ const DataManager = {
             .select()
             .single();
 
-        // Supabase trigger handles the balance update and transaction logging
-        await this.getCurrentUser();
+        if (data && status === 'won') {
+            const win = parseFloat((data.amount * data.odds).toFixed(2));
+            await Promise.all([
+                this.updateBalance(userId, win),
+                this.addTransaction(userId, {
+                    type: 'win',
+                    description: `Ganho: ${data.title}`,
+                    amount: win,
+                    bet_id: betId
+                })
+            ]);
+        }
+
+        await this.getCurrentUser(true);
         return data;
     },
 
@@ -153,8 +179,20 @@ const DataManager = {
             .select()
             .single();
 
-        // Supabase trigger handles the refund and transaction logging
-        await this.getCurrentUser();
+        if (data) {
+            const refund = parseFloat(data.amount);
+            await Promise.all([
+                this.updateBalance(userId, refund),
+                this.addTransaction(userId, {
+                    type: 'refund',
+                    description: `Reembolso: ${data.title}`,
+                    amount: refund,
+                    bet_id: betId
+                })
+            ]);
+        }
+
+        await this.getCurrentUser(true);
         return data;
     },
 
