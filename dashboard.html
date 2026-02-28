@@ -9,9 +9,13 @@
     <meta name="apple-mobile-web-app-title" content="BetManager" />
     <link rel="manifest" href="manifest.json" />
     <link rel="apple-touch-icon" href="icons/icon-192.png" />
-    <title>BetManager – Dashboard</title>
-    <meta name="description" content="Dashboard de apostas com estatísticas em tempo real." />
+    <title>BetVault – Gestão Profissional de Apostas</title>
+    <meta name="description" content="Controle sua banca com precisão e inteligência." />
     <link rel="stylesheet" href="styles/main.css" />
+    <style>
+        /* Local layout fixes for premium feel */
+        .page-content { position: relative; min-height: 400px; }
+    </style>
 </head>
 
 <body>
@@ -19,8 +23,8 @@
         <!-- SIDEBAR -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-logo">
-                <div class="sidebar-logo-icon">🎯</div>
-                <span class="sidebar-logo-text">BetManager</span>
+                <div class="sidebar-logo-icon">💠</div>
+                <span class="sidebar-logo-text">BetVault</span>
             </div>
             <nav class="sidebar-nav">
                 <div class="nav-section-label">Principal</div>
@@ -55,25 +59,37 @@
         </aside>
 
         <!-- MAIN -->
-        <div class="main-content">
-            <div class="topbar">
-                <button class="menu-toggle" id="mobile-toggle" onclick="toggleSidebar()">
-                    <span>☰</span>
-                </button>
-                <div class="topbar-title">
-                    <h1>Dashboard</h1>
-                    <p id="user-greeting">Bem-vindo ao seu painel de controle</p>
+            <div class="main-content">
+                <div class="topbar">
+                    <button class="menu-toggle" id="mobile-toggle" onclick="toggleSidebar()">
+                        <span>☰</span>
+                    </button>
+                    <div class="topbar-title">
+                        <h1>Dashboard</h1>
+                        <p id="user-greeting">Bem-vindo ao seu painel estratégico</p>
+                    </div>
+                    <div class="topbar-spacer"></div>
+                    <div class="topbar-balance">
+                        <span class="topbar-balance-label">💎 Fluxo de Caixa</span>
+                        <span class="topbar-balance-val balance-display">R$ 0,00</span>
+                    </div>
                 </div>
-                <div class="topbar-spacer"></div>
-                <div class="topbar-balance">
-                    <span class="topbar-balance-label">💰 Saldo</span>
-                    <span class="topbar-balance-val balance-display">R$ 0,00</span>
-                </div>
-                <a href="nova-aposta" class="btn btn-primary btn-sm">⭐ Aposta Única</a>
-                <a href="nova-multipla" class="btn btn-accent btn-sm">📋 Múltipla</a>
-            </div>
 
             <div class="page-content">
+                <!-- SKELETON OVERLAY -->
+                <div id="skeleton-overlay" class="loading-layer">
+                    <div class="stats-grid">
+                        <div class="stat-card skeleton"></div>
+                        <div class="stat-card skeleton"></div>
+                        <div class="stat-card skeleton"></div>
+                        <div class="stat-card skeleton"></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="card skeleton" style="height:320px"></div>
+                        <div class="card skeleton" style="height:320px"></div>
+                    </div>
+                </div>
+
                 <!-- STATS -->
                 <div class="stats-grid" id="stats-grid">
                     <div class="stat-card accent">
@@ -221,7 +237,13 @@
                 document.getElementById('sidebar-avatar').textContent = user.name.charAt(0).toUpperCase();
 
                 // Load initial data
-                await loadDashboard(user);
+                await loadDashboard();
+            
+                // Hide skeleton after initial load
+                setTimeout(() => {
+                    const overlay = document.getElementById('skeleton-overlay');
+                    if(overlay) overlay.style.display = 'none';
+                }, 600);
             } catch (e) {
                 console.error("Dashboard init error:", e);
             }
