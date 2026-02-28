@@ -363,10 +363,8 @@
             document.getElementById('sidebar-name').textContent = user.name;
             document.getElementById('sidebar-avatar').textContent = user.name.charAt(0).toUpperCase();
 
-            // Refresh balance
-            const freshUser = await DataManager.getCurrentUser();
-            currentBalance = freshUser.balance;
-            document.querySelectorAll('.balance-display').forEach(el => el.textContent = Utils.fmt(currentBalance));
+            // Load all dynamic data
+            await loadBalance();
         }
 
         function toggleSidebar() {
@@ -478,16 +476,24 @@
             btn.disabled = true;
             btn.textContent = '⏳ Registrando...';
 
+            const eventDate = document.getElementById('bet-date').value;
+            const platform = document.getElementById('bet-platform').value.trim();
+            const eventName = document.getElementById('bet-event').value.trim();
+            let notes = document.getElementById('bet-notes').value.trim();
+
+            // Append extra info to notes if they exist, to avoid schema errors on columns that don't exist
+            if (platform) notes = (notes ? notes + "\n" : "") + "Plataforma: " + platform;
+            if (eventDate) notes = (notes ? notes + "\n" : "") + "Data do Evento: " + eventDate;
+
             const result = await DataManager.createBet(user.id, {
                 title,
                 category,
                 selection,
                 amount,
                 odds,
-                event: document.getElementById('bet-event').value.trim(),
-                notes: document.getElementById('bet-notes').value.trim(),
-                eventDate: document.getElementById('bet-date').value,
-                platform: document.getElementById('bet-platform').value.trim(),
+                event: eventName,
+                notes: notes,
+                type: 'single'
             });
 
             if (result) {

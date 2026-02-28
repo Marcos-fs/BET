@@ -73,13 +73,17 @@ const DataManager = {
         const newBalance = parseFloat((user.balance + delta).toFixed(2));
 
         // Update both Supabase and LocalStorage concurrently
-        const { data } = await sb
+        const { data, error } = await sb
             .from('users')
             .update({ balance: newBalance })
             .eq('id', userId)
             .select()
             .single();
 
+        if (error) {
+            console.error("Error updating balance:", error);
+            return null;
+        }
         if (data) this.setCurrentUser(data);
         return data;
     },
@@ -95,7 +99,6 @@ const DataManager = {
     },
 
     async createBet(userId, betData) {
-        // First step: Create the bet
         const { data: bet, error } = await sb
             .from('bets')
             .insert([{
@@ -106,30 +109,19 @@ const DataManager = {
             .select()
             .single();
 
-        if (bet) {
-            // Optimization: Run balance update and transaction record in parallel
-            const newBalance = parseFloat((JSON.parse(localStorage.getItem('betmgr_current_user')).balance - betData.amount).toFixed(2));
-
-            await Promise.all([
-                sb.from('users').update({ balance: newBalance }).eq('id', userId),
-                this.addTransaction(userId, {
-                    type: 'bet',
-                    description: `Aposta: ${betData.title}`,
-                    amount: -betData.amount,
-                    bet_id: bet.id
-                })
-            ]);
-
-            // Sync local state
-            this.getCurrentUser();
+        if (error) {
+            console.error("Error creating bet:", error);
+            return null;
         }
+
+        // Balance and transactions are now handled by Supabase triggers!
+        // We just need to refresh local user data
+        await this.getCurrentUser();
+
         return bet;
     },
 
     async resolveBet(userId, betId, status) {
-        const { data: bet } = await sb.from('bets').select('*').eq('id', betId).single();
-        if (!bet || bet.status !== 'pending') return null;
-
         const { data, error } = await sb
             .from('bets')
             .update({ status, resolved_at: new Date().toISOString() })
@@ -137,23 +129,12 @@ const DataManager = {
             .select()
             .single();
 
-        if (data && status === 'won') {
-            const win = parseFloat((data.amount * data.odds).toFixed(2));
-            await this.updateBalance(userId, win);
-            await this.addTransaction(userId, {
-                type: 'win',
-                description: `Ganho: ${data.title}`,
-                amount: win,
-                bet_id: betId
-            });
-        }
+        // Supabase trigger handles the balance update and transaction logging
+        await this.getCurrentUser();
         return data;
     },
 
     async cancelBet(userId, betId) {
-        const { data: bet } = await sb.from('bets').select('*').eq('id', betId).single();
-        if (!bet || bet.status !== 'pending') return null;
-
         const { data, error } = await sb
             .from('bets')
             .update({ status: 'cancelled', resolved_at: new Date().toISOString() })
@@ -161,22 +142,18 @@ const DataManager = {
             .select()
             .single();
 
-        if (data) {
-            await this.updateBalance(userId, parseFloat(data.amount));
-            await this.addTransaction(userId, {
-                type: 'refund',
-                description: `Reembolso: ${data.title}`,
-                amount: parseFloat(data.amount),
-                bet_id: betId,
-                created_at: new Date().toISOString()
-            });
-        }
+        // Supabase trigger handles the refund and transaction logging
+        await this.getCurrentUser();
         return data;
     },
 
     // ---- TRANSACTIONS ----
     async addTransaction(userId, tx) {
-        await sb.from('transactions').insert([{ user_id: userId, ...tx }]);
+        await sb.from('transactions').insert([{
+            user_id: userId,
+            ...tx,
+            date: tx.date || new Date().toISOString()
+        }]);
     },
 
     async getTransactions(userId) {
