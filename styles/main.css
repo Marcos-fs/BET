@@ -692,7 +692,7 @@ img {
   padding: 0 28px;
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 2000;
   gap: 16px;
 }
 
@@ -744,7 +744,21 @@ img {
   flex: 1;
 }
 
-/* ===================== CARDS ===================== */
+/* ===================== LAYOUT GRIDS ===================== */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1200px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border-light);
@@ -1897,16 +1911,12 @@ input[type=range]::-webkit-slider-thumb {
     gap: 12px;
   }
 
-  /* General Grid Reset */
+  /* General Grid Reset - Force single column on mobile */
   .grid-2,
   .grid-3,
   .grid-auto,
-  [style*="grid-template-columns: 1fr 120px"],
-  [style*="grid-template-columns: 1fr 1fr"],
-  [style*="grid-template-columns: 1fr 320px"],
-  [style*="grid-template-columns:1fr 1fr"],
-  [style*="grid-template-columns: 1fr"],
-  [style*="grid-template-columns:repeat(3, 1fr)"] {
+  .main-grid,
+  [style*="grid-template-columns"] {
     grid-template-columns: 1fr !important;
     gap: 16px !important;
   }
