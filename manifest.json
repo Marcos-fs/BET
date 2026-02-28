@@ -1,11 +1,11 @@
 {
-    "name": "BetManager",
-    "short_name": "BetManager",
-    "description": "Gerencie suas apostas únicas e múltiplas com facilidade",
+    "name": "BetVault",
+    "short_name": "BetVault",
+    "description": "Gestão Profissional de Apostas – Controle sua banca com precisão",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#0a0b1a",
-    "theme_color": "#6c63ff",
+    "background_color": "#090b14",
+    "theme_color": "#615eff",
     "orientation": "portrait-primary",
     "lang": "pt-BR",
     "icons": [

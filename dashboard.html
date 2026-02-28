@@ -14,7 +14,10 @@
     <link rel="stylesheet" href="styles/main.css" />
     <style>
         /* Local layout fixes for premium feel */
-        .page-content { position: relative; min-height: 400px; }
+        .page-content {
+            position: relative;
+            min-height: 400px;
+        }
     </style>
 </head>
 
@@ -59,21 +62,21 @@
         </aside>
 
         <!-- MAIN -->
-            <div class="main-content">
-                <div class="topbar">
-                    <button class="menu-toggle" id="mobile-toggle" onclick="toggleSidebar()">
-                        <span>☰</span>
-                    </button>
-                    <div class="topbar-title">
-                        <h1>Dashboard</h1>
-                        <p id="user-greeting">Bem-vindo ao seu painel estratégico</p>
-                    </div>
-                    <div class="topbar-spacer"></div>
-                    <div class="topbar-balance">
-                        <span class="topbar-balance-label">💎 Fluxo de Caixa</span>
-                        <span class="topbar-balance-val balance-display">R$ 0,00</span>
-                    </div>
+        <div class="main-content">
+            <div class="topbar">
+                <button class="menu-toggle" id="mobile-toggle" onclick="toggleSidebar()">
+                    <span>☰</span>
+                </button>
+                <div class="topbar-title">
+                    <h1>Dashboard</h1>
+                    <p id="user-greeting">Bem-vindo ao seu painel estratégico</p>
                 </div>
+                <div class="topbar-spacer"></div>
+                <div class="topbar-balance">
+                    <span class="topbar-balance-label">💎 Fluxo de Caixa</span>
+                    <span class="topbar-balance-val balance-display">R$ 0,00</span>
+                </div>
+            </div>
 
             <div class="page-content">
                 <!-- SKELETON OVERLAY -->
@@ -238,11 +241,11 @@
 
                 // Load initial data
                 await loadDashboard();
-            
+
                 // Hide skeleton after initial load
                 setTimeout(() => {
                     const overlay = document.getElementById('skeleton-overlay');
-                    if(overlay) overlay.style.display = 'none';
+                    if (overlay) overlay.style.display = 'none';
                 }, 600);
             } catch (e) {
                 console.error("Dashboard init error:", e);
@@ -269,13 +272,14 @@
             DataManager.logout(); window.location.href = '/';
         }
 
-        async function loadDashboard(user) {
-            const freshUser = await DataManager.getCurrentUser();
+        async function loadDashboard() {
+            const user = await DataManager.getCurrentUser();
+            if (!user) return;
             const bets = await DataManager.getUserBets(user.id);
             const stats = await DataManager.getUserStats(user.id);
 
             // Update balance
-            document.querySelectorAll('.balance-display').forEach(el => el.textContent = Utils.fmt(freshUser.balance));
+            document.querySelectorAll('.balance-display').forEach(el => el.textContent = Utils.fmt(user.balance));
 
             // Stats
             document.getElementById('stat-total').textContent = stats.total;

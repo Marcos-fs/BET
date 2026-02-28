@@ -19,15 +19,15 @@
   --info: #0099ff;
 
   /* Neutrals - Deep Slate theme */
-  --bg-base: #090b14;
-  --bg-elevated: #0f111d;
-  --bg-card: #151829;
-  --bg-card-hover: #1c1f35;
-  --bg-sidebar: #0b0d18;
+  --bg-base: #07090f;
+  --bg-elevated: #111425;
+  --bg-card: #181c32;
+  --bg-card-hover: #1f243d;
+  --bg-sidebar: #090b14;
 
   --text-primary: #ffffff;
-  --text-secondary: #9499b3;
-  --text-muted: #5c6280;
+  --text-secondary: #b0b6cf;
+  --text-muted: #8086a0;
 
   /* Borders & Spacing */
   --border-light: rgba(255, 255, 255, 0.08);
@@ -758,15 +758,15 @@ img {
 
 .card-title {
   font-size: 18px;
-  font-weight: 700;
-  color: var(--text-primary);
+  font-weight: 800;
+  color: #ffffff;
   margin-bottom: 4px;
 }
 
 .card-subtitle {
   font-size: 13px;
   color: var(--text-secondary);
-  font-weight: 400;
+  font-weight: 500;
 }
 
 /* ===================== STATS GRID ===================== */
@@ -1202,13 +1202,40 @@ textarea.form-control {
   align-items: center;
   gap: 12px;
   background: var(--bg-card);
-  border: 1px solid var(--border-default);
+  border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   padding: 14px 18px;
   min-width: 300px;
   max-width: 380px;
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-md);
   animation: toastIn 0.3s ease;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  max-width: 500px;
+  width: 100%;
+  padding: 32px;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  animation: modal-in 0.3s ease-out;
 }
 
 .toast.removing {
@@ -1359,7 +1386,7 @@ textarea.form-control {
 .return-value {
   font-size: 28px;
   font-weight: 800;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-heading);
   color: var(--accent);
 }
 
@@ -1445,7 +1472,7 @@ textarea.form-control {
 .wallet-amount {
   font-size: 40px;
   font-weight: 800;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-heading);
   margin: 8px 0 20px;
 }
 
