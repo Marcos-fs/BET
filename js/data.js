@@ -201,11 +201,17 @@ const DataManager = {
 
     // ---- TRANSACTIONS ----
     async addTransaction(userId, tx) {
-        await sb.from('transactions').insert([{
+        const { data, error } = await sb.from('transactions').insert([{
             user_id: userId,
             ...tx,
             date: tx.date || new Date().toISOString()
-        }]);
+        }]).select();
+
+        if (error) {
+            console.error("❌ Error adding transaction:", error);
+            return null;
+        }
+        return data ? data[0] : null;
     },
 
     async getTransactions(userId) {
@@ -213,7 +219,7 @@ const DataManager = {
             .from('transactions')
             .select('*')
             .eq('user_id', userId)
-            .order('created_at', { ascending: false });
+            .order('date', { ascending: false });
         return data || [];
     },
 
