@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#6c63ff" />
+    <meta name="theme-color" content="#615eff" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="BetManager" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="BetVault" />
     <link rel="manifest" href="manifest.json" />
     <link rel="apple-touch-icon" href="icons/icon-192.png" />
     <title>BetVault – Meu Perfil</title>
@@ -76,7 +77,7 @@
                             style="width:120px;height:120px;font-size:48px;border:5px solid var(--primary-glow);margin-bottom:20px;box-shadow:var(--shadow-glow);">
                             ?</div>
                         <h2 id="profile-name"
-                            style="font-size:24px;margin-bottom:4px;font-weight:800;font-family:'Space Grotesk',sans-serif;">
+                            style="font-size:24px;margin-bottom:4px;font-weight:800;font-family:var(--font-heading);">
                             ...</h2>
                         <p id="profile-email" style="color:var(--text-secondary);font-size:14px;margin-bottom:30px;">...
                         </p>
@@ -132,7 +133,7 @@
                             <div
                                 style="background:var(--bg-elevated);padding:16px;border-radius:var(--radius-lg);text-align:center;border:1px solid var(--border-default);">
                                 <div id="stat-total"
-                                    style="font-size:20px;font-weight:800;font-family:'Space Grotesk',sans-serif;">0
+                                    style="font-size:20px;font-weight:800;font-family:var(--font-heading);">0
                                 </div>
                                 <div
                                     style="font-size:11px;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-top:4px;">
@@ -141,7 +142,7 @@
                             <div
                                 style="background:var(--bg-elevated);padding:16px;border-radius:var(--radius-lg);text-align:center;border:1px solid var(--border-default);">
                                 <div id="stat-won"
-                                    style="font-size:20px;font-weight:800;font-family:'Space Grotesk',sans-serif;color:var(--success);">
+                                    style="font-size:20px;font-weight:800;font-family:var(--font-heading);color:var(--success);">
                                     0</div>
                                 <div
                                     style="font-size:11px;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-top:4px;">
@@ -150,7 +151,7 @@
                             <div
                                 style="background:var(--bg-elevated);padding:16px;border-radius:var(--radius-lg);text-align:center;border:1px solid var(--border-default);">
                                 <div id="stat-lost"
-                                    style="font-size:20px;font-weight:800;font-family:'Space Grotesk',sans-serif;color:var(--danger);">
+                                    style="font-size:20px;font-weight:800;font-family:var(--font-heading);color:var(--danger);">
                                     0</div>
                                 <div
                                     style="font-size:11px;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-top:4px;">
@@ -163,7 +164,7 @@
                             <span style="font-size:13px;color:var(--text-secondary);font-weight:600;">💰 Saldo em
                                 Conta</span>
                             <span class="balance-display"
-                                style="font-size:18px;font-weight:800;color:var(--accent);font-family:'Space Grotesk',sans-serif;">R$
+                                style="font-size:18px;font-weight:800;color:var(--accent);font-family:var(--font-heading);">R$
                                 0,00</span>
                         </div>
                     </div>
@@ -174,23 +175,23 @@
         <!-- MOBILE NAV -->
         <div class="mobile-nav">
             <nav style="display:flex;width:100%;justify-content:space-around;align-items:center;">
-                <a href="dashboard" class="mobile-nav-item">
+                <a href="dashboard.html" class="mobile-nav-item">
                     <span>🏠</span>
                     <span>Início</span>
                 </a>
-                <a href="nova-aposta" class="mobile-nav-item">
+                <a href="nova-aposta.html" class="mobile-nav-item">
                     <span>⭐</span>
                     <span>Única</span>
                 </a>
-                <a href="nova-multipla" class="mobile-nav-item">
+                <a href="nova-multipla.html" class="mobile-nav-item">
                     <span>📋</span>
                     <span>Múltipla</span>
                 </a>
-                <a href="apostas" class="mobile-nav-item">
+                <a href="apostas.html" class="mobile-nav-item">
                     <span>🎯</span>
                     <span>Apostas</span>
                 </a>
-                <a href="perfil" class="mobile-nav-item active">
+                <a href="perfil.html" class="mobile-nav-item active">
                     <span>👤</span>
                     <span>Perfil</span>
                 </a>

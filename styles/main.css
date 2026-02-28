@@ -887,7 +887,7 @@ img {
 .stat-value {
   font-size: 26px;
   font-weight: 800;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-heading);
   margin: 4px 0;
 }
 
@@ -1219,6 +1219,7 @@ textarea.form-control {
   height: 100%;
   background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: none;
   align-items: center;
   justify-content: center;
@@ -1226,6 +1227,11 @@ textarea.form-control {
   padding: 20px;
 }
 
+.modal-overlay.open {
+  display: flex !important;
+}
+
+.modal,
 .modal-content {
   background: var(--bg-elevated);
   border: 1px solid var(--border-light);
@@ -1236,6 +1242,37 @@ textarea.form-control {
   position: relative;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
   animation: modal-in 0.3s ease-out;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.modal-close {
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: var(--text-secondary);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
 
 .toast.removing {
@@ -1363,7 +1400,7 @@ textarea.form-control {
 .odds-value {
   font-size: 32px;
   font-weight: 800;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-heading);
   color: var(--primary-light);
 }
 
@@ -1541,7 +1578,8 @@ textarea.form-control {
   font-weight: 800;
   color: #fff;
   margin: 0 auto 12px;
-  border: 3px solid rgba(108, 99, 255, 0.4);
+  border: 4px solid var(--border-light);
+  box-shadow: var(--shadow-glow);
 }
 
 .profile-name {
@@ -1572,7 +1610,7 @@ textarea.form-control {
 .profile-stat-value {
   font-size: 20px;
   font-weight: 800;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-heading);
 }
 
 .profile-stat-label {
@@ -1592,7 +1630,7 @@ textarea.form-control {
 
 .filter-select {
   background: var(--bg-card);
-  border: 1px solid var(--border-default);
+  border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   padding: 9px 36px 9px 14px;
   font-size: 13px;

@@ -55,7 +55,7 @@
             "name": "Nova Aposta Única",
             "short_name": "Única",
             "description": "Criar uma nova aposta única",
-            "url": "/nova-aposta",
+            "url": "nova-aposta.html",
             "icons": [
                 {
                     "src": "icons/icon-96.png",
@@ -67,7 +67,7 @@
             "name": "Nova Aposta Múltipla",
             "short_name": "Múltipla",
             "description": "Criar um acumulador",
-            "url": "/nova-multipla",
+            "url": "nova-multipla.html",
             "icons": [
                 {
                     "src": "icons/icon-96.png",
@@ -79,7 +79,7 @@
             "name": "Dashboard",
             "short_name": "Dashboard",
             "description": "Ver estatísticas",
-            "url": "/dashboard",
+            "url": "dashboard.html",
             "icons": [
                 {
                     "src": "icons/icon-96.png",

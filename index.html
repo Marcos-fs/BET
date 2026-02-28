@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#6c63ff" />
+  <meta name="theme-color" content="#615eff" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="BetVault" />
@@ -176,8 +176,8 @@
   <script src="js/data.js"></script>
   <script>
     // Check if already logged in (local check for speed)
-    if (localStorage.getItem('betmgr_current_user')) {
-      window.location.href = 'dashboard';
+    if (localStorage.getItem('betvault_session')) {
+      window.location.href = 'dashboard.html';
     }
 
     function switchTab(tab) {
@@ -230,7 +230,7 @@
         errEl.textContent = result.error; errEl.style.display = 'block';
         setLoading('login-btn', false, '<span>Entrar</span> →');
       } else {
-        window.location.href = 'dashboard';
+        window.location.href = 'dashboard.html';
       }
     }
 
@@ -251,7 +251,7 @@
         errEl.textContent = result.error; errEl.style.display = 'block';
         setLoading('reg-btn', false, 'Criar Conta →');
       } else {
-        window.location.href = 'dashboard';
+        window.location.href = 'dashboard.html';
       }
     }
 

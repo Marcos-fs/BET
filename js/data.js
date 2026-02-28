@@ -10,7 +10,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const DataManager = {
     // ---- SESSION ----
     async getCurrentUser(forceRefresh = false) {
-        const local = JSON.parse(localStorage.getItem('betmgr_current_user'));
+        const local = JSON.parse(localStorage.getItem('betvault_session'));
         if (!local) return null;
 
         // If not forcing refresh and we have local data, return it immediately for speed
@@ -19,7 +19,7 @@ const DataManager = {
         try {
             const { data, error } = await sb.from('users').select('*').eq('id', local.id).single();
             if (data) {
-                localStorage.setItem('betmgr_current_user', JSON.stringify(data));
+                localStorage.setItem('betvault_session', JSON.stringify(data));
                 return data;
             }
         } catch (e) {
@@ -29,11 +29,11 @@ const DataManager = {
     },
 
     setCurrentUser(user) {
-        localStorage.setItem('betmgr_current_user', JSON.stringify(user));
+        localStorage.setItem('betvault_session', JSON.stringify(user));
     },
 
     logout() {
-        localStorage.removeItem('betmgr_current_user');
+        localStorage.removeItem('betvault_session');
     },
 
     // ---- USERS ----
@@ -107,7 +107,7 @@ const DataManager = {
 
     async createBet(userId, betData) {
         // Optimistic UI update: reduce local balance immediately so the user doesn't see "delay"
-        const local = JSON.parse(localStorage.getItem('betmgr_current_user'));
+        const local = JSON.parse(localStorage.getItem('betvault_session'));
         if (local) {
             local.balance -= betData.amount;
             this.setCurrentUser(local);
@@ -258,7 +258,7 @@ const DataManager = {
 // ===================== AUTH HELPER =====================
 const Auth = {
     async requireAuth() {
-        const userStr = localStorage.getItem('betmgr_current_user');
+        const userStr = localStorage.getItem('betvault_session');
         if (!userStr) { window.location.href = '/'; return null; }
         return JSON.parse(userStr);
     },

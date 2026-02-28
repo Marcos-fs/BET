@@ -1,18 +1,19 @@
 // ===================== SERVICE WORKER =====================
-// BetManager PWA - Offline Support & Cache
+// BetVault PWA - Offline Support & Cache
 
-const CACHE_NAME = 'betmanager-v1';
+const CACHE_NAME = 'betvault-v1';
 
 // All files to cache for offline use
 const STATIC_ASSETS = [
     '/',
-    '/dashboard',
-    '/apostas',
-    '/nova-aposta',
-    '/nova-multipla',
-    '/historico',
-    '/carteira',
-    '/perfil',
+    '/index.html',
+    '/dashboard.html',
+    '/apostas.html',
+    '/nova-aposta.html',
+    '/nova-multipla.html',
+    '/historico.html',
+    '/carteira.html',
+    '/perfil.html',
     '/styles/main.css',
     '/js/data.js',
     '/manifest.json',
@@ -26,7 +27,7 @@ const STATIC_ASSETS = [
 
 // ---- INSTALL: cache all static assets ----
 self.addEventListener('install', (event) => {
-    console.log('[SW] Installing BetManager Service Worker...');
+    console.log('[SW] Installing BetVault Service Worker...');
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             console.log('[SW] Caching static assets');
@@ -44,7 +45,7 @@ self.addEventListener('install', (event) => {
 
 // ---- ACTIVATE: clean up old caches ----
 self.addEventListener('activate', (event) => {
-    console.log('[SW] Activating BetManager Service Worker...');
+    console.log('[SW] Activating BetVault Service Worker...');
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
