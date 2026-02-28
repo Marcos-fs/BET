@@ -8,15 +8,27 @@
   --primary-dark: hsl(243, 80%, 60%);
   --primary-glow: hsla(var(--primary-hsl), 0.25);
 
-  --accent-hsl: 168, 100%, 42%;
-  --accent: hsl(var(--accent-hsl));
-  --accent-dark: hsl(168, 100%, 35%);
-  --accent-glow: hsla(var(--accent-hsl), 0.25);
-
+  --success-hsl: 168, 100%, 42%;
+  /* Derived from #00d4aa-ish */
   --success: #00d4aa;
+  --success-dark: #00b38f;
+  --success-light: #33ddbb;
+  --success-glow: rgba(0, 212, 170, 0.15);
+
+  --danger-hsl: 354, 100%, 63%;
   --danger: #ff4757;
+  --danger-dark: #ff1f31;
+  --danger-light: #ff6b79;
+  --danger-glow: rgba(255, 71, 87, 0.15);
+
+  --warning-hsl: 39, 100%, 50%;
   --warning: #ffa502;
+  --warning-dark: #e69500;
+  --warning-light: #ffb733;
+  --warning-glow: rgba(255, 165, 2, 0.15);
+
   --info: #0099ff;
+  --info-glow: rgba(0, 153, 255, 0.15);
 
   /* Neutrals - Deep Slate theme */
   --bg-base: #07090f;
@@ -394,8 +406,8 @@ img {
 
 .btn-accent {
   background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-  color: #1a1a2e;
-  font-weight: 700;
+  color: #07090f;
+  font-weight: 800;
   box-shadow: 0 4px 20px rgba(0, 212, 170, 0.3);
 }
 
@@ -422,14 +434,14 @@ img {
 
 .btn-success {
   background: linear-gradient(135deg, var(--success), var(--success-dark));
-  color: #1a1a2e;
-  font-weight: 700;
+  color: #07090f;
+  font-weight: 800;
 }
 
 .btn-warning {
   background: linear-gradient(135deg, var(--warning), var(--warning-dark));
-  color: #1a1a2e;
-  font-weight: 700;
+  color: #07090f;
+  font-weight: 800;
 }
 
 .btn-full {
@@ -1111,15 +1123,17 @@ textarea.form-control {
 }
 
 .modal {
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-xl);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
   padding: 32px;
   width: 100%;
-  max-width: 520px;
+  max-width: 500px;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
   transform: scale(0.95) translateY(10px);
   transition: var(--transition);
-  box-shadow: var(--shadow-card), 0 0 60px rgba(108, 99, 255, 0.1);
+  animation: modal-in 0.3s ease-out;
 }
 
 .modal-overlay.open .modal {
@@ -1139,12 +1153,12 @@ textarea.form-control {
 }
 
 .modal-close {
-  background: none;
-  color: var(--text-muted);
-  font-size: 22px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: var(--text-secondary);
   width: 32px;
   height: 32px;
-  border-radius: var(--radius-sm);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1152,8 +1166,8 @@ textarea.form-control {
 }
 
 .modal-close:hover {
-  background: rgba(255, 71, 87, 0.12);
-  color: var(--danger);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
 
 /* ===================== PROGRESS BAR ===================== */
@@ -1211,69 +1225,7 @@ textarea.form-control {
   animation: toastIn 0.3s ease;
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 20px;
-}
-
-.modal-overlay.open {
-  display: flex !important;
-}
-
-.modal,
-.modal-content {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
-  max-width: 500px;
-  width: 100%;
-  padding: 32px;
-  position: relative;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-  animation: modal-in 0.3s ease-out;
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-}
-
-.modal-title {
-  font-size: 20px;
-  font-weight: 800;
-  color: #fff;
-}
-
-.modal-close {
-  background: rgba(255, 255, 255, 0.05);
-  border: none;
-  color: var(--text-secondary);
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition);
-}
-
-.modal-close:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-}
+/* Duplicate removed */
 
 .toast.removing {
   animation: toastOut 0.3s ease forwards;
