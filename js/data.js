@@ -73,10 +73,13 @@ const DataManager = {
     },
 
     async updateBalance(userId, delta) {
-        const user = await this.getCurrentUser();
+        // ALWAYS fetch a fresh version from the server before calculating new balance
+        // to avoid "double debit" from optimistic local updates
+        const user = await this.getCurrentUser(true);
+        if (!user) return null;
+
         const newBalance = parseFloat((user.balance + delta).toFixed(2));
 
-        // Update both Supabase and LocalStorage concurrently
         const { data, error } = await sb
             .from('users')
             .update({ balance: newBalance })
