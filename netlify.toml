@@ -1,0 +1,14 @@
+[build]
+  publish = "/"
+
+# Enable clean URLs (so users can access /dashboard instead of /dashboard.html)
+[[redirects]]
+  from = "/*"
+  to = "/:splat.html"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 404

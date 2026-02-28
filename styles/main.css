@@ -1789,9 +1789,15 @@ input[type=range]::-webkit-slider-thumb {
   }
 
   /* General Grid Reset */
+  .grid-2,
+  .grid-3,
+  .grid-auto,
   [style*="grid-template-columns: 1fr 120px"],
   [style*="grid-template-columns: 1fr 1fr"],
-  [style*="grid-template-columns: 1fr 320px"] {
+  [style*="grid-template-columns: 1fr 320px"],
+  [style*="grid-template-columns:1fr 1fr"],
+  [style*="grid-template-columns: 1fr"],
+  [style*="grid-template-columns:repeat(3, 1fr)"] {
     grid-template-columns: 1fr !important;
     gap: 16px !important;
   }
