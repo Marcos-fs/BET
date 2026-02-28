@@ -1942,3 +1942,103 @@ input[type=range]::-webkit-slider-thumb {
     display: none;
   }
 }
+
+/* ========================================================
+   ANIMATIONS & PREMIUM FEEDBACK
+   ======================================================== */
+
+@keyframes pulse-green {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 212, 170, 0.4);
+    background: rgba(0, 212, 170, 0.2);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(0, 212, 170, 0);
+    background: transparent;
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 212, 170, 0);
+  }
+}
+
+@keyframes pulse-red {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.4);
+    background: rgba(255, 71, 87, 0.2);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 71, 87, 0);
+    background: transparent;
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 71, 87, 0);
+  }
+}
+
+@keyframes float-up-fade {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(-40px);
+    opacity: 0;
+  }
+}
+
+@keyframes shake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px);
+  }
+
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+.anim-pulse-green {
+  animation: pulse-green 0.6s ease-out;
+}
+
+.anim-pulse-red {
+  animation: pulse-red 0.6s ease-out;
+}
+
+.anim-shake {
+  animation: shake 0.2s ease-in-out;
+}
+
+.floating-amount {
+  position: absolute;
+  font-weight: 800;
+  font-size: 16px;
+  pointer-events: none;
+  z-index: 10000;
+  animation: float-up-fade 1.2s ease-out forwards;
+}
+
+.floating-amount.plus {
+  color: #00d4aa;
+}
+
+/* var(--success) */
+.floating-amount.minus {
+  color: #ff4757;
+}
+
+/* var(--danger) */

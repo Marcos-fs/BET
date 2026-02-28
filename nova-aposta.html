@@ -470,9 +470,15 @@
             if (!selection) { errEl.textContent = 'Por favor, insira sua seleção/palpite.'; errEl.style.display = 'block'; return; }
             if (!amount || amount <= 0) { errEl.textContent = 'Por favor, insira um valor válido.'; errEl.style.display = 'block'; return; }
             if (!odds || odds <= 1) { errEl.textContent = 'A odd deve ser maior que 1.00.'; errEl.style.display = 'block'; return; }
-            if (amount > currentBalance) { errEl.textContent = `Saldo insuficiente. Você tem ${Utils.fmt(currentBalance)} disponível.`; errEl.style.display = 'block'; return; }
+            if (amount > currentBalance) {
+                Animate.shake('bet-amount');
+                errEl.textContent = `Saldo insuficiente. Você tem ${Utils.fmt(currentBalance)} disponível.`;
+                errEl.style.display = 'block';
+                return;
+            }
 
             const btn = document.getElementById('submit-btn');
+            const originalBtnText = btn.textContent;
             btn.disabled = true;
             btn.textContent = '⏳ Registrando...';
 
@@ -497,6 +503,8 @@
             });
 
             if (result) {
+                Animate.flashBalance(-amount);
+                Animate.successBtn('submit-btn', originalBtnText);
                 Toast.success('⭐ Aposta registrada!', `${Utils.fmt(amount)} apostados em "${title}"`);
                 clearForm();
                 await loadBalance();

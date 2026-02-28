@@ -282,3 +282,63 @@ const Utils = {
         return type === 'multiple' ? '<span class="badge badge-primary">Múltipla</span>' : '<span class="badge badge-accent">Única</span>';
     }
 };
+
+// ===================== UI ANIMATIONS =====================
+const Animate = {
+    // Show a floating "+R$ 100" or "-R$ 50" that drifts up and fades
+    flashBalance(delta) {
+        const isPlus = delta > 0;
+        const displays = document.querySelectorAll('.balance-display');
+
+        displays.forEach(el => {
+            // Pulse effect
+            el.classList.remove('anim-pulse-green', 'anim-pulse-red');
+            void el.offsetWidth;
+            el.classList.add(isPlus ? 'anim-pulse-green' : 'anim-pulse-red');
+
+            // Floating indicator
+            const rect = el.getBoundingClientRect();
+            const floater = document.createElement('div');
+            floater.className = `floating-amount ${isPlus ? 'plus' : 'minus'}`;
+            floater.style.position = 'fixed';
+            floater.style.left = `${rect.left + (rect.width / 2)}px`;
+            floater.style.top = `${rect.top}px`;
+            floater.style.zIndex = '99999';
+            floater.textContent = (isPlus ? '+' : '') + Utils.fmt(delta);
+
+            document.body.appendChild(floater);
+            setTimeout(() => floater.remove(), 1200);
+        });
+    },
+
+    shake(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('anim-shake');
+        void el.offsetWidth;
+        el.classList.add('anim-shake');
+    },
+
+    successBtn(id, oldText) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const prevBg = el.style.background;
+        el.innerHTML = '✅ Concluído!';
+        el.style.background = '#00d4aa';
+        setTimeout(() => { el.innerHTML = oldText; el.style.background = prevBg; }, 2000);
+    }
+};
+
+// ===================== CLIENT TOAST =====================
+const Toast = {
+    show(msg, sub = '', type = 'info') {
+        const t = document.createElement('div');
+        const colors = { info: '#445577', success: '#00d4aa', error: '#ff4757', warning: '#ffa502' };
+        t.style = `position:fixed;bottom:20px;right:20px;background:${colors[type]};color:#fff;padding:12px 20px;border-radius:12px;z-index:20000;box-shadow:0 10px 30px rgba(0,0,0,0.5);animation:float-up-fade 0.4s ease-out;display:flex;flex-direction:column;gap:4px;min-width:260px;border-left:5px solid rgba(0,0,0,0.2);`;
+        t.innerHTML = `<div style="font-weight:800;font-size:14px;">${msg}</div><div style="font-size:12px;opacity:0.8;">${sub}</div>`;
+        document.body.appendChild(t);
+        setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(-20px)'; t.style.transition = '0.4s'; setTimeout(() => t.remove(), 400); }, 3500);
+    },
+    success(m, s) { this.show(m, s, 'success'); },
+    error(m, s) { this.show(m, s, 'error'); }
+};

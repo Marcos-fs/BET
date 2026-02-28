@@ -275,7 +275,12 @@
         async function doDeposit() {
             const amount = parseFloat(document.getElementById('deposit-amount').value);
             const errEl = document.getElementById('deposit-error');
-            if (!amount || amount <= 0) { errEl.textContent = 'Valor inválido.'; errEl.style.display = 'block'; return; }
+            if (!amount || amount <= 0) {
+                Animate.shake('deposit-amount');
+                errEl.textContent = 'Valor inválido.';
+                errEl.style.display = 'block';
+                return;
+            }
 
             const btn = document.querySelector('#deposit-modal .btn-success');
             btn.disabled = true; btn.textContent = 'Processando...';
@@ -284,6 +289,7 @@
             await DataManager.deposit(user.id, amount);
 
             closeModal('deposit-modal');
+            Animate.flashBalance(amount);
             document.getElementById('deposit-amount').value = '';
             Toast.success('💰 Depósito realizado!', `${Utils.fmt(amount)} adicionados à sua carteira.`);
             btn.disabled = false; btn.textContent = '💰 Confirmar Depósito';
@@ -295,7 +301,12 @@
             const u = await DataManager.getCurrentUser();
             const errEl = document.getElementById('withdraw-error');
             if (!amount || amount <= 0) { errEl.textContent = 'Valor inválido.'; errEl.style.display = 'block'; return; }
-            if (amount > u.balance) { errEl.textContent = `Saldo insuficiente.`; errEl.style.display = 'block'; return; }
+            if (amount > u.balance) {
+                Animate.shake('withdraw-amount');
+                errEl.textContent = `Saldo insuficiente.`;
+                errEl.style.display = 'block';
+                return;
+            }
 
             const btn = document.querySelector('#withdraw-modal .btn-danger');
             btn.disabled = true; btn.textContent = 'Processando...';
@@ -303,6 +314,7 @@
             await DataManager.withdraw(u.id, amount);
 
             closeModal('withdraw-modal');
+            Animate.flashBalance(-amount);
             document.getElementById('withdraw-amount').value = '';
             Toast.info('💸 Saque realizado!', `${Utils.fmt(amount)} removidos da sua carteira.`);
             btn.disabled = false; btn.textContent = '💸 Confirmar Saque';
