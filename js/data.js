@@ -9,9 +9,12 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // ===================== DATA MANAGER (SUPABASE VERSION) =====================
 const DataManager = {
     // ---- SESSION ----
-    async getCurrentUser() {
+    async getCurrentUser(forceRefresh = false) {
         const local = JSON.parse(localStorage.getItem('betmgr_current_user'));
         if (!local) return null;
+
+        // If not forcing refresh and we have local data, return it immediately for speed
+        if (!forceRefresh) return local;
 
         try {
             const { data, error } = await sb.from('users').select('*').eq('id', local.id).single();
@@ -99,6 +102,13 @@ const DataManager = {
     },
 
     async createBet(userId, betData) {
+        // Optimistic UI update: reduce local balance immediately so the user doesn't see "delay"
+        const local = JSON.parse(localStorage.getItem('betmgr_current_user'));
+        if (local) {
+            local.balance -= betData.amount;
+            this.setCurrentUser(local);
+        }
+
         const { data: bet, error } = await sb
             .from('bets')
             .insert([{
@@ -111,12 +121,13 @@ const DataManager = {
 
         if (error) {
             console.error("Error creating bet:", error);
+            // Rollback local change if error
+            this.getCurrentUser(true);
             return null;
         }
 
-        // Balance and transactions are now handled by Supabase triggers!
-        // We just need to refresh local user data
-        await this.getCurrentUser();
+        // Background sync
+        this.getCurrentUser(true);
 
         return bet;
     },
