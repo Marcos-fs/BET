@@ -32,18 +32,18 @@
             </div>
             <nav class="sidebar-nav">
                 <div class="nav-section-label">Principal</div>
-                <a href="dashboard" class="nav-item active"><span class="nav-item-icon">🏠</span> Dashboard</a>
-                <a href="nova-aposta" class="nav-item"><span class="nav-item-icon">⭐</span> Aposta Única</a>
-                <a href="nova-multipla" class="nav-item"><span class="nav-item-icon">📋</span> Aposta Múltipla</a>
+                <a href="dashboard.html" class="nav-item active"><span class="nav-item-icon">🏠</span> Dashboard</a>
+                <a href="nova-aposta.html" class="nav-item"><span class="nav-item-icon">⭐</span> Aposta Única</a>
+                <a href="nova-multipla.html" class="nav-item"><span class="nav-item-icon">📋</span> Aposta Múltipla</a>
                 <a href="apostas" class="nav-item">
                     <span class="nav-item-icon">🎯</span> Minhas Apostas
                     <span id="pending-count-badge" class="nav-badge" style="display:none;">0</span>
                 </a>
                 <div class="nav-section-label">Histórico & Finanças</div>
-                <a href="historico" class="nav-item"><span class="nav-item-icon">📜</span> Histórico</a>
-                <a href="carteira" class="nav-item"><span class="nav-item-icon">💰</span> Carteira</a>
+                <a href="historico.html" class="nav-item"><span class="nav-item-icon">📜</span> Histórico</a>
+                <a href="carteira.html" class="nav-item"><span class="nav-item-icon">💰</span> Carteira</a>
                 <div class="nav-section-label">Conta</div>
-                <a href="perfil" class="nav-item"><span class="nav-item-icon">👤</span> Perfil</a>
+                <a href="perfil.html" class="nav-item"><span class="nav-item-icon">👤</span> Perfil</a>
             </nav>
             <div class="sidebar-footer">
                 <div class="user-info" onclick="window.location.href='perfil'">
@@ -164,8 +164,8 @@
                     <div class="card">
                         <div class="card-header">
                             <div>
-                                <div class="card-title">🏷️ Por Categoria</div>
-                                <div class="card-subtitle">Distribuição das apostas</div>
+                                <div class="card-title">⚽ Melhores Mercados</div>
+                                <div class="card-subtitle">Performance por tipo de aposta</div>
                             </div>
                         </div>
                         <div id="categories-list" style="display:flex;flex-direction:column;gap:12px;"></div>
@@ -304,8 +304,8 @@
             // Chart
             buildChart(bets);
 
-            // Categories
-            buildCategories(bets);
+            // Markets
+            buildMarkets(bets);
 
             // Recent bets
             const recent = [...bets].sort((a, b) => new Date(b.created_at || b.createdAt) - new Date(a.created_at || a.createdAt)).slice(0, 5);
@@ -395,27 +395,36 @@
             }).join('');
         }
 
-        function buildCategories(bets) {
-            const cats = {};
+        function buildMarkets(bets) {
+            const markets = {};
             bets.forEach(b => {
-                cats[b.category] = (cats[b.category] || 0) + 1;
+                const m = b.category || 'Outros'; // We use category field for market now
+                if (!markets[m]) markets[m] = { count: 0, won: 0, lost: 0 };
+                markets[m].count++;
+                if (b.status === 'won') markets[m].won++;
+                else if (b.status === 'lost') markets[m].lost++;
             });
+
             const total = bets.length || 1;
-            const sorted = Object.entries(cats).sort((a, b) => b[1] - a[1]);
-            const el = document.getElementById('categories-list');
+            const sorted = Object.entries(markets).sort((a, b) => b[1].count - a[1].count);
+            const el = document.getElementById('categories-list'); // Keeping ID for stability
+
             if (sorted.length === 0) {
                 el.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;font-size:14px;">Nenhuma aposta ainda</div>';
                 return;
             }
-            el.innerHTML = sorted.map(([cat, count]) => {
-                const pct = (count / total * 100).toFixed(0);
+
+            el.innerHTML = sorted.map(([m, data]) => {
+                const pct = (data.count / total * 100).toFixed(0);
+                const winRate = data.count > 0 ? ((data.won / (data.won + data.lost || 1)) * 100).toFixed(0) : 0;
+
                 return `
-        <div>
+        <div style="margin-bottom:16px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-            <span style="font-size:13px;">${Utils.categoryIcon(cat)} ${cat}</span>
-            <span style="font-size:13px;font-weight:600;color:var(--text-secondary);">${count} (${pct}%)</span>
+            <span style="font-size:13px;font-weight:600;">${Utils.categoryIcon(m)} ${m}</span>
+            <span style="font-size:12px;color:var(--text-muted);">${data.count} apostas · <span style="color:var(--success);">${winRate}% acerto</span></span>
           </div>
-          <div class="progress-bar"><div class="progress-fill primary" style="width:${pct}%"></div></div>
+          <div class="progress-bar" style="height:6px;"><div class="progress-fill primary" style="width:${pct}%"></div></div>
         </div>`;
             }).join('');
         }

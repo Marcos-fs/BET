@@ -6,6 +6,55 @@ const SUPABASE_KEY = 'sb_publishable_6z8NaL9J_aYlq5UK5MAGOA_N7MbfVdN';
 // Note: 'supabase' is the global object from the CDN script
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// ===================== CONSTANTS =====================
+const FOOTBALL_MARKETS = [
+    'Vencedor (1x2)',
+    'Ambas Marcam',
+    'Over/Under Gols',
+    'Escanteios',
+    'Handicap',
+    'Placar Exato',
+    'Chance Dupla',
+    'DNB (Empate Anula)',
+    'Intervalo/Final (HT/FT)',
+    'Cartões',
+    'Finalizações',
+    'Especiais de Jogador',
+    'Outros'
+];
+
+const MARKET_ICONS = {
+    'Vencedor (1x2)': '🏆',
+    'Ambas Marcam': '⚽⚽',
+    'Over/Under Gols': '📊',
+    'Escanteios': '🚩',
+    'Handicap': '⚖️',
+    'Placar Exato': '🔢',
+    'Chance Dupla': '🛡️',
+    'DNB (Empate Anula)': '🔄',
+    'Intervalo/Final (HT/FT)': '⏰',
+    'Cartões': '🟨',
+    'Finalizações': '👟',
+    'Especiais de Jogador': '👤',
+    'Outros': '🎯'
+};
+
+// Map of keywords to markets for AI detection
+const MARKET_DETECTION_MAP = {
+    'Vencedor (1x2)': ['vence', 'ganha', 'vitoria', 'vittoria', '1x2', 'win'],
+    'Ambas Marcam': ['marcam', 'ambas', 'btts', 'goal goal', 'g/g'],
+    'Over/Under Gols': ['gols', 'gols+', 'gols-', 'over', 'under', 'mais de', 'menos de', '2.5', '1.5', '3.5', '0.5'],
+    'Escanteios': ['escanteio', 'cantos', 'corners', 'escanteios'],
+    'Handicap': ['handicap', 'hcp', 'asian', 'asiatico', '+1', '-1', '+2', '-2', '0.5', '0.25', '0.75'],
+    'Placar Exato': ['placar', 'exato', 'score', 'resultado exato'],
+    'Chance Dupla': ['dupla', 'chance', 'double chance', '1x', 'x2', '12'],
+    'DNB (Empate Anula)': ['dnb', 'anula', 'draw no bet', 'empate anula'],
+    'Intervalo/Final (HT/FT)': ['intervalo', 'final', 'ht/ft', 'ht', 'ft', 'meio tempo'],
+    'Cartões': ['cartão', 'cartoes', 'amarelo', 'vermelho', 'cards'],
+    'Finalizações': ['chutes', 'finalizacoes', 'chute', 'gol', 'shots', 'target'],
+    'Especiais de Jogador': ['jogador', 'marcador', 'assistencia', 'player', 'anytime']
+};
+
 // ===================== DATA MANAGER (SUPABASE VERSION) =====================
 const DataManager = {
     // ---- SESSION ----
@@ -272,8 +321,7 @@ const Utils = {
     fmtDate(iso) { return new Date(iso).toLocaleString('pt-BR'); },
     fmtDateShort(iso) { return new Date(iso).toLocaleDateString('pt-BR'); },
     categoryIcon(cat) {
-        const map = { 'Futebol': '⚽', 'Basquete': '🏀', 'Tênis': '🎾', 'E-Sports': '🎮', 'MMA': '🥊' };
-        return map[cat] || '🎰';
+        return MARKET_ICONS[cat] || '🎰';
     },
     statusBadge(status) {
         const map = { pending: '⏳ Pendente', won: '✅ Ganhou', lost: '❌ Perdeu', cancelled: '↩️ Cancelada' };
@@ -286,6 +334,13 @@ const Utils = {
     },
     typeBadge(type) {
         return type === 'multiple' ? '<span class="badge badge-primary">Múltipla</span>' : '<span class="badge badge-accent">Única</span>';
+    },
+    debounce(fn, delay) {
+        let timeout;
+        return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => fn.apply(this, args), delay);
+        };
     }
 };
 

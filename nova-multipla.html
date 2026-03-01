@@ -452,8 +452,6 @@
         let currentBalance = 0;
         let selectionCount = 0;
 
-        const CATEGORIES = ['Futebol', 'Basquete', 'Tênis', 'E-Sports', 'Fórmula 1', 'Vôlei', 'MMA', 'Ciclismo', 'Baseball', 'Outro'];
-
         async function loadBalance() {
             const u = await DataManager.getCurrentUser();
             currentBalance = u.balance;
@@ -475,19 +473,19 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;">
         <div class="form-group" style="margin:0;">
           <label class="form-label" style="font-size:10px;">Evento / Partida</label>
-          <input type="text" class="form-control" id="sel-title-${idx}" placeholder="Ex: Brasil x Argentina" oninput="updateSummary()" />
+          <input type="text" class="form-control" id="sel-title-${idx}" placeholder="Ex: Brasil x Argentina" oninput="updateSummary(); detectMultiMarket(${idx})" />
         </div>
         <div class="form-group" style="margin:0;">
-          <label class="form-label" style="font-size:10px;">Categoria</label>
+          <label class="form-label" style="font-size:10px;">Mercado</label>
           <select class="cat-select" id="sel-cat-${idx}" onchange="updateSummary()">
-            ${CATEGORIES.map(c => `<option value="${c}">${Utils.categoryIcon(c)} ${c}</option>`).join('')}
+            ${FOOTBALL_MARKETS.map(m => `<option value="${m}">${MARKET_ICONS[m] || '🎯'} ${m}</option>`).join('')}
           </select>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 120px;gap:12px;margin-top:10px;">
         <div class="form-group" style="margin:0;">
           <label class="form-label" style="font-size:10px;">Seleção / Palpite</label>
-          <input type="text" class="form-control" id="sel-pick-${idx}" placeholder="Ex: Brasil Vence" oninput="updateSummary()" />
+          <input type="text" class="form-control" id="sel-pick-${idx}" placeholder="Ex: Brasil Vence" oninput="updateSummary(); detectMultiMarket(${idx})" />
         </div>
         <div class="form-group" style="margin:0;">
           <label class="form-label" style="font-size:10px;">Odd</label>
@@ -531,9 +529,9 @@
             cards.forEach(card => {
                 const id = card.id.replace('sel-', '');
                 const title = document.getElementById('sel-title-' + id)?.value.trim() || '';
-                const category = document.getElementById('sel-cat-' + id)?.value || 'Outro';
-                const selection = document.getElementById('sel-pick-' + id)?.value.trim() || '';
-                const odds = parseFloat(document.getElementById('sel-odds-' + id)?.value) || 0;
+                const category = document.getElementById('sel-cat-' + id)?.value || 'Vencedor (1x2)';
+                const selection = document.getElementById('pick-' + id)?.value.trim() || '';
+                const odds = parseFloat(document.getElementById('odds-' + id)?.value) || 0;
                 sels.push({ title, category, selection, odds });
             });
             return sels;
@@ -618,7 +616,7 @@
                 notes,
                 type: 'multiple',
                 odds: parseFloat(totalOdds.toFixed(2)),
-                category: sels[0].category // Use first selection category as main
+                category: sels[0].category // Using primary market as category
             });
 
             if (result) {
@@ -632,6 +630,31 @@
             btn.disabled = false;
             btn.textContent = '📋 Registrar Aposta Múltipla';
         }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // AI Market Detection for Multiples
+        const detectMultiMarket = Utils.debounce((idx) => {
+            const titleInput = document.getElementById(`sel-title-${idx}`);
+            const pickInput = document.getElementById(`sel-pick-${idx}`);
+            const catSelect = document.getElementById(`sel-cat-${idx}`);
+
+            if (!titleInput || !pickInput || !catSelect) return;
+
+            const combined = (titleInput.value + ' ' + pickInput.value).toLowerCase();
+
+            for (const [market, keywords] of Object.entries(MARKET_DETECTION_MAP)) {
+                if (keywords.some(kw => combined.includes(kw))) {
+                    if (catSelect.value !== market) {
+                        catSelect.value = market;
+                        updateSummary();
+                        break;
+                    }
+                }
+            }
+        }, 800);
 
         // Initialize with 2 selections
         addSelection();
