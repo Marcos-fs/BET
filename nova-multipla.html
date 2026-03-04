@@ -252,7 +252,15 @@
                                 <div class="card-title">📋 Criar Aposta Múltipla</div>
                                 <div class="card-subtitle">Adicione 2 ou mais seleções para criar um acumulador</div>
                             </div>
-                            <span class="multipla-tag">📋 Acumulador</span>
+                            <div style="display:flex;align-items:center;gap:12px;">
+                                <button class="btn btn-sm btn-outline" onclick="triggerOCR()"
+                                    style="height:32px;padding:0 12px;display:flex;align-items:center;gap:6px;font-size:12px;">
+                                    <span>📸</span> Importar de Print
+                                </button>
+                                <span class="multipla-tag">📋 Acumulador</span>
+                            </div>
+                            <input type="file" id="ocr-input" accept="image/*" style="display:none;"
+                                onchange="handleOCR(this)" />
                         </div>
 
                         <!-- Bet title -->
@@ -452,6 +460,153 @@
         let currentBalance = 0;
         let selectionCount = 0;
 
+        // ===================== OCR LOGIC =====================
+        function triggerOCR() {
+            document.getElementById('ocr-input').click();
+        }
+
+        async function handleOCR(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+
+            const loadingEl = document.getElementById('ocr-loading');
+            loadingEl.style.display = 'flex';
+
+            try {
+                const result = await Tesseract.recognize(file, 'por+eng', {
+                    logger: m => console.log(m)
+                });
+
+                const parsedSelections = parseMultiOCRText(result.data.text);
+
+                loadingEl.style.display = 'none';
+                input.value = ''; // Reset input
+
+                if (parsedSelections.length > 0) {
+                    populateMultiForm(parsedSelections);
+                    Toast.success('🤖 IA: Leitura Concluída', `${parsedSelections.length} seleções extraídas. Verifique os dados.`);
+                } else {
+                    Toast.error('🤖 IA: Alerta', 'Não consegui identificar seleções claras na imagem. Faça o preenchimento manual.');
+                }
+
+            } catch (err) {
+                console.error("OCR Error:", err);
+                loadingEl.style.display = 'none';
+                Toast.error('Erro na Leitura da Imagem', 'Tente novamente com um print mais nítido.');
+            }
+        }
+
+        function parseMultiOCRText(text) {
+            console.log("RAW OCR:", text);
+            const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 2);
+            let selections = [];
+
+            // Regex to find things that look like odds (e.g., 1.50, 2,35, 1,90)
+            const oddRegex = /^[0-9]+[,.][0-9]{1,2}$/;
+
+            // Heuristic for Multiples: 
+            // Often the layout is:
+            // Event Name (Team A x Team B)
+            // Selection (Over 2.5)
+            // Odd (1.80)
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+
+                // If we find an odd...
+                if (oddRegex.test(line)) {
+                    let odd = parseFloat(line.replace(',', '.'));
+
+                    // We need at least an Event and a Pick from previous lines
+                    // We'll guess that line i-1 is the Pick, and line i-2 is the Event
+                    // This varies heavily by bookie, but it's the most common stack.
+                    let pick = i >= 1 ? lines[i - 1] : '';
+                    let event = i >= 2 ? lines[i - 2] : '';
+
+                    // Cleanup common OCR mistakes in event names
+                    event = event.replace(/[^a-zA-ZÀ-ÿ0-9\s\-xX]/g, '').trim();
+                    pick = pick.replace(/[^a-zA-ZÀ-ÿ0-9\s.+>]/g, '').trim();
+
+                    if (odd > 1.0) {
+                        selections.push({ event, pick, odd });
+                    }
+                }
+            }
+            return selections;
+        }
+
+        function populateMultiForm(parsedSelections) {
+            const list = document.getElementById('selections-list');
+            list.innerHTML = ''; // Clear existing
+            selectionCount = 0;
+
+            parsedSelections.forEach(sel => {
+                selectionCount++;
+                const idx = selectionCount;
+
+                const div = document.createElement('div');
+                div.className = 'selection-card';
+                div.id = 'sel-' + idx;
+                div.innerHTML = `
+                  <div class="selection-number">Seleção ${idx}</div>
+                  ${idx > 1 ? '<button class="selection-remove" onclick="removeSelection(' + idx + ')" title="Remover">✕</button>' : ''}
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;">
+                    <div class="form-group" style="margin:0;">
+                      <label class="form-label" style="font-size:10px;">Evento / Partida</label>
+                      <input type="text" class="form-control" id="sel-title-${idx}" value="${sel.event}" oninput="updateSummary(); detectMultiMarket(${idx})" />
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                      <label class="form-label" style="font-size:10px;">Mercado</label>
+                      <select class="cat-select" id="sel-cat-${idx}" onchange="updateSummary()">
+                        ${FOOTBALL_MARKETS.map(m => '<option value="' + m + '">' + (MARKET_ICONS[m] || '🎯') + ' ' + m + '</option>').join('')}
+                      </select>
+                    </div>
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr 120px;gap:12px;margin-top:10px;">
+                    <div class="form-group" style="margin:0;">
+                      <label class="form-label" style="font-size:10px;">Seleção / Palpite</label>
+                      <input type="text" class="form-control" id="sel-pick-${idx}" value="${sel.pick}" oninput="updateSummary(); detectMultiMarket(${idx})" />
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                      <label class="form-label" style="font-size:10px;">Odd</label>
+                      <input type="number" class="form-control" id="sel-odds-${idx}" value="${sel.odd}" min="1.01" step="0.01" oninput="updateSummary()" />
+                    </div>
+                  </div>`;
+
+                list.appendChild(div);
+
+                // Trigger AI Market detection immediately for this new selection
+                setTimeout(() => {
+                    const detectFn = Utils.debounce(() => {
+                        const titleInput = document.getElementById('sel-title-' + idx);
+                        const pickInput = document.getElementById('sel-pick-' + idx);
+                        const catSelect = document.getElementById('sel-cat-' + idx);
+                        if (!titleInput || !pickInput || !catSelect) return;
+
+                        const combined = (titleInput.value + ' ' + pickInput.value).toLowerCase();
+                        for (const [market, keywords] of Object.entries(MARKET_DETECTION_MAP)) {
+                            if (keywords.some(kw => combined.includes(kw))) {
+                                catSelect.value = market;
+                                updateSummary();
+                                break;
+                            }
+                        }
+                    }, 50);
+                    detectFn();
+                }, 100);
+            });
+
+            // Ensure at least 2 selections exist (business rule)
+            while (selectionCount < 2) {
+                addSelection();
+            }
+            renumberSelections();
+            updateSummary();
+            updateAddBtn();
+        }
+
+        // ============================================
+
         async function loadBalance() {
             const u = await DataManager.getCurrentUser();
             currentBalance = u.balance;
@@ -468,30 +623,30 @@
             div.className = 'selection-card';
             div.id = 'sel-' + idx;
             div.innerHTML = `
-      <div class="selection-number">Seleção ${idx}</div>
-      ${idx > 1 ? `<button class="selection-remove" onclick="removeSelection(${idx})" title="Remover">✕</button>` : ''}
+                            < div class= "selection-number" > Seleção ${idx}</div >
+                        ${idx > 1 ? `<button class="selection-remove" onclick="removeSelection(${idx})" title="Remover">✕</button>` : ''}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;">
-        <div class="form-group" style="margin:0;">
-          <label class="form-label" style="font-size:10px;">Evento / Partida</label>
-          <input type="text" class="form-control" id="sel-title-${idx}" placeholder="Ex: Brasil x Argentina" oninput="updateSummary(); detectMultiMarket(${idx})" />
-        </div>
-        <div class="form-group" style="margin:0;">
-          <label class="form-label" style="font-size:10px;">Mercado</label>
-          <select class="cat-select" id="sel-cat-${idx}" onchange="updateSummary()">
-            ${FOOTBALL_MARKETS.map(m => `<option value="${m}">${MARKET_ICONS[m] || '🎯'} ${m}</option>`).join('')}
-          </select>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 120px;gap:12px;margin-top:10px;">
-        <div class="form-group" style="margin:0;">
-          <label class="form-label" style="font-size:10px;">Seleção / Palpite</label>
-          <input type="text" class="form-control" id="sel-pick-${idx}" placeholder="Ex: Brasil Vence" oninput="updateSummary(); detectMultiMarket(${idx})" />
-        </div>
-        <div class="form-group" style="margin:0;">
-          <label class="form-label" style="font-size:10px;">Odd</label>
-          <input type="number" class="form-control" id="sel-odds-${idx}" placeholder="1.50" min="1.01" step="0.01" oninput="updateSummary()" />
-        </div>
-      </div>`;
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label" style="font-size:10px;">Evento / Partida</label>
+                                <input type="text" class="form-control" id="sel-title-${idx}" placeholder="Ex: Brasil x Argentina" oninput="updateSummary(); detectMultiMarket(${idx})" />
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label" style="font-size:10px;">Mercado</label>
+                                <select class="cat-select" id="sel-cat-${idx}" onchange="updateSummary()">
+                                    ${FOOTBALL_MARKETS.map(m => `<option value="${m}">${MARKET_ICONS[m] || '🎯'} ${m}</option>`).join('')}
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 120px;gap:12px;margin-top:10px;">
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label" style="font-size:10px;">Seleção / Palpite</label>
+                                <input type="text" class="form-control" id="sel-pick-${idx}" placeholder="Ex: Brasil Vence" oninput="updateSummary(); detectMultiMarket(${idx})" />
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label" style="font-size:10px;">Odd</label>
+                                <input type="number" class="form-control" id="sel-odds-${idx}" placeholder="1.50" min="1.01" step="0.01" oninput="updateSummary()" />
+                            </div>
+                        </div>`;
             list.appendChild(div);
             renumberSelections();
             updateSummary();
@@ -554,7 +709,7 @@
             if (validSels.length > 0) {
                 chain.innerHTML = validSels.map((s, i) =>
                     `${i > 0 ? '<span class="odds-separator">×</span>' : ''}<span class="odds-chip">${s.odds.toFixed(2)}</span>`
-                ).join('') + `<span class="odds-separator">=</span><span class="odds-chip" style="background:rgba(0,212,170,0.15);border-color:rgba(0,212,170,0.25);color:var(--accent);">${totalOdds.toFixed(2)}</span>`;
+                ).join('') + `< span class= "odds-separator" >=</span > <span class="odds-chip" style="background:rgba(0,212,170,0.15);border-color:rgba(0,212,170,0.25);color:var(--accent);">${totalOdds.toFixed(2)}</span>`;
             } else {
                 chain.innerHTML = '';
             }
@@ -602,7 +757,7 @@
                 if (!s.odds || s.odds <= 1) { errEl.textContent = `Seleção ${i + 1}: odd deve ser maior que 1.00.`; errEl.style.display = 'block'; return; }
             }
             if (!amount || amount <= 0) { errEl.textContent = 'Por favor, insira um valor válido.'; errEl.style.display = 'block'; return; }
-            if (amount > currentBalance) { errEl.textContent = `Saldo insuficiente. Disponível: ${Utils.fmt(currentBalance)}.`; errEl.style.display = 'block'; return; }
+            if (amount > currentBalance) { errEl.textContent = `Saldo insuficiente.Disponível: ${Utils.fmt(currentBalance)}.`; errEl.style.display = 'block'; return; }
 
             const btn = document.getElementById('submit-btn');
             btn.disabled = true;
@@ -620,7 +775,7 @@
             });
 
             if (result) {
-                Toast.success('📋 Aposta múltipla registrada!', `${sels.length} seleções · Odd total: ${totalOdds.toFixed(2)}x · ${Utils.fmt(amount)} apostados`);
+                Toast.success('📋 Aposta múltipla registrada!', `${sels.length} seleções · Odd total: ${totalOdds.toFixed(2)} x · ${Utils.fmt(amount)} apostados`);
                 resetForm();
                 await loadBalance();
             } else {
@@ -637,9 +792,9 @@
 
         // AI Market Detection for Multiples
         const detectMultiMarket = Utils.debounce((idx) => {
-            const titleInput = document.getElementById(`sel-title-${idx}`);
-            const pickInput = document.getElementById(`sel-pick-${idx}`);
-            const catSelect = document.getElementById(`sel-cat-${idx}`);
+            const titleInput = document.getElementById(`sel - title - ${idx} `);
+            const pickInput = document.getElementById(`sel - pick - ${idx} `);
+            const catSelect = document.getElementById(`sel - cat - ${idx}`);
 
             if (!titleInput || !pickInput || !catSelect) return;
 
