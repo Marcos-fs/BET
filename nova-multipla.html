@@ -518,40 +518,77 @@
 
         function parseMultiOCRText(text) {
             console.log("RAW OCR:", text);
-            const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 2);
+            const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 1);
             let selections = [];
+            let usedLines = new Set();
 
-            // Regex to find things that look like odds (e.g., 1.50, 2,35, 1,90)
-            const oddRegex = /^[0-9]+[,.][0-9]{1,2}$/;
+            // Strategy: Scan for odds patterns ANYWHERE in a line
+            // Real bet slips have formats like:
+            //   "1X                    1.24"   (selection + odd on same line)
+            //   "Chance Dupla"                 (market name below)
+            //   "CA Banfield - CA Aldosivi"    (event/teams below)
+            // OR:
+            //   "Independiente Rivadavia Mendoza +0.5   1.34"
+            //   "Handicap Asiático..."
+            //   "Ind. Rivadavia Mendoza - River Plate"
 
-            // Heuristic for Multiples: 
-            // Often the layout is:
-            // Event Name (Team A x Team B)
-            // Selection (Over 2.5)
-            // Odd (1.80)
+            const oddInLineRegex = /(\d{1,2}[.,]\d{1,2})\s*$/;  // Odd at end of line
+            const teamLineRegex = /[a-zA-ZÀ-ÿ].*\s+[-xvVX]\s+.*[a-zA-ZÀ-ÿ]/; // "Team A - Team B"
+            const ignoreRegex = /^(resultado|esta noite|amanhã|hoje|ao vivo|live|encerrado|\d{2}:\d{2}|cash out)/i;
 
             for (let i = 0; i < lines.length; i++) {
+                if (usedLines.has(i)) continue;
                 const line = lines[i];
+                if (ignoreRegex.test(line)) continue;
 
-                // If we find an odd...
-                if (oddRegex.test(line)) {
-                    let odd = parseFloat(line.replace(',', '.'));
+                const oddMatch = line.match(oddInLineRegex);
+                if (oddMatch) {
+                    let odd = parseFloat(oddMatch[1].replace(',', '.'));
+                    if (odd < 1.01 || odd > 100) continue; // Not a valid odd
 
-                    // We need at least an Event and a Pick from previous lines
-                    // We'll guess that line i-1 is the Pick, and line i-2 is the Event
-                    // This varies heavily by bookie, but it's the most common stack.
-                    let pick = i >= 1 ? lines[i - 1] : '';
-                    let event = i >= 2 ? lines[i - 2] : '';
+                    // Extract the selection (everything before the odd on this line)
+                    let pick = line.replace(oddMatch[0], '').replace(/[✅⚽🟢⚫🔵]/g, '').trim();
+                    usedLines.add(i);
 
-                    // Cleanup common OCR mistakes in event names
-                    event = event.replace(/[^a-zA-ZÀ-ÿ0-9\s\-xX]/g, '').trim();
-                    pick = pick.replace(/[^a-zA-ZÀ-ÿ0-9\s.+>]/g, '').trim();
+                    // Look at lines BELOW for event name (Team A - Team B)
+                    let event = '';
+                    for (let j = i + 1; j < Math.min(i + 5, lines.length); j++) {
+                        if (usedLines.has(j)) continue;
+                        const below = lines[j];
+                        if (ignoreRegex.test(below)) continue;
 
-                    if (odd > 1.0) {
-                        selections.push({ event, pick, odd });
+                        if (teamLineRegex.test(below)) {
+                            event = below.replace(/[✅⚽🟢⚫🔵]/g, '').trim();
+                            usedLines.add(j);
+                            break;
+                        }
                     }
+
+                    // If no event found below, check 1-2 lines ABOVE
+                    if (!event) {
+                        for (let j = i - 1; j >= Math.max(i - 3, 0); j--) {
+                            if (usedLines.has(j)) continue;
+                            const above = lines[j];
+                            if (teamLineRegex.test(above)) {
+                                event = above.replace(/[✅⚽🟢⚫🔵]/g, '').trim();
+                                usedLines.add(j);
+                                break;
+                            }
+                        }
+                    }
+
+                    // Cleanup
+                    pick = pick.replace(/[^a-zA-ZÀ-ÿ0-9\s.+\-]/g, '').trim();
+                    event = event.replace(/[^a-zA-ZÀ-ÿ0-9\s.\-]/g, '').trim();
+
+                    if (!pick) pick = 'Palpite Detectado';
+                    if (!event) event = 'Evento Detectado';
+
+                    selections.push({ event, pick, odd });
                 }
             }
+
+            console.log("PARSED SELECTIONS:", selections);
             return selections;
         }
 
