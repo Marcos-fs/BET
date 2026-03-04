@@ -155,13 +155,6 @@ const DataManager = {
     },
 
     async createBet(userId, betData) {
-        // Optimistic UI update: reduce local balance immediately so the user doesn't see "delay"
-        const local = JSON.parse(localStorage.getItem('betvault_session'));
-        if (local) {
-            local.balance -= betData.amount;
-            this.setCurrentUser(local);
-        }
-
         const { data: bet, error } = await sb
             .from('bets')
             .insert([{
@@ -174,13 +167,11 @@ const DataManager = {
 
         if (error) {
             console.error("Error creating bet:", error);
-            // Rollback local change if error
-            this.getCurrentUser(true);
             return null;
         }
 
         if (bet) {
-            // Processing balance and transaction in JS
+            // Deduct balance and log transaction (single deduction, no duplicates)
             await Promise.all([
                 this.updateBalance(userId, -betData.amount),
                 this.addTransaction(userId, {
@@ -191,7 +182,7 @@ const DataManager = {
                 })
             ]);
 
-            // Final refresh to be sure
+            // Refresh local cache with the server truth
             await this.getCurrentUser(true);
         }
 

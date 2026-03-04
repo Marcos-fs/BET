@@ -426,7 +426,27 @@
         </nav>
     </div>
 
+    <!-- OCR Loading Overlay -->
+    <div id="ocr-loading"
+        style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(7,9,15,0.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center;backdrop-filter:blur(8px);">
+        <div
+            style="width:48px;height:48px;border:4px solid var(--border-focus);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:16px;">
+        </div>
+        <h3 style="color:#fff;margin-bottom:8px;">Lendo Imagem...</h3>
+        <p style="color:var(--text-secondary);font-size:13px;max-width:300px;text-align:center;">A Inteligência
+            Artificial está analisando sua múltipla. Isso pode levar alguns segundos.</p>
+    </div>
+
+    <style>
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <script src="js/data.js"></script>
     <script>
         let user;
@@ -623,7 +643,7 @@
             div.className = 'selection-card';
             div.id = 'sel-' + idx;
             div.innerHTML = `
-                            < div class= "selection-number" > Seleção ${idx}</div >
+                            <div class="selection-number">Seleção ${idx}</div>
                         ${idx > 1 ? `<button class="selection-remove" onclick="removeSelection(${idx})" title="Remover">✕</button>` : ''}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;">
                             <div class="form-group" style="margin:0;">
